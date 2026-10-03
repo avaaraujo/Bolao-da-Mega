@@ -201,9 +201,13 @@ Quatro tintas de risografia sobre papel, cada uma com um papel fixo; nenhuma cor
 
 ## Layout
 
-Coluna única de celular, centralizada no desktop, com largura máxima de 480px e calha lateral de 16px. A tipografia de cartaz e de display escala por container query (`cqi`) da coluna, não pelo viewport. Seções se separam por 32px; blocos internos por 20–24px; pares rótulo/conteúdo por 8–12px. O topo respeita a safe area (mínimo 20px).
+Coluna única de celular, com largura máxima de 480px e calha lateral de 16px (até 1023px, inclusive tablet). A tipografia de cartaz e de display escala por container query (`cqi`) da coluna, não pelo viewport. Seções se separam por 32px; blocos internos por 20–24px; pares rótulo/conteúdo por 8–12px. O topo respeita a safe area (mínimo 20px).
 
 A ação principal de cada tela vive numa barra fixa no rodapé, sobre papel a 95%, com botões de altura 56px em largura total e nota opcional acima. No admin, uma barra de 5 abas (64px) fica fixa embaixo. O volante é uma grade 6×10 cujas linhas medem `clamp(44px, (100dvh − 410px)/10, 58px)`, para que a grade inteira caiba no primeiro viewport do celular junto do título e da faixa de status.
+
+**Desktop (≥ 1024px): página dupla de zine.** Cada tela vira duas colunas (5fr / 7fr, máx. 1200px, calha de 48px, espaço entre colunas `clamp(48px, 6vw, 96px)`). A coluna esquerda é a capa, fixa ao rolar (`sticky`): título, contexto e, por padrão, a ação principal, que deixa de ser barra fixa e vira bloco estático no fim da coluna. A coluna direita é o trabalho: volante, cotas, chave Pix, andamento, lista de jogos. Quando a ação conclui o que está à direita (inscrição, envio do comprovante), ela desce para o fim da coluna direita (`barIn="side"`). Cada coluna é seu próprio container (`cqi`), então títulos e números escalam pela coluna. No volante, as linhas medem `clamp(56px, (100dvh − 190px)/10, 84px)` e os algarismos chegam a 40px; a capa mostra os 6 números escolhidos em discos (vazios tracejados). Telas sem conteúdo lateral ficam numa coluna de 600px.
+
+**Área do Avá no desktop.** Trilho lateral fixo de 248px com fio azul à direita (a lombada do zine): título pequeno em duas tintas, "Área do Avá", navegação vertical e o link de volta para a página do bolão no pé. O conteúdo ocupa até 1180px em duas colunas (`even`, `wide-left` ou `wide-right`). Pagamentos viram lista + detalhe: a fila à esquerda (linha selecionada em amarelo) e o comprovante com as ações num painel fixo à direita; as setas ↑ ↓ andam pela fila e, ao aprovar, a seleção passa sozinha para o próximo.
 
 ## Elevation & Depth
 
@@ -241,11 +245,15 @@ Blocos de tinta chapada, caixa-alta condensada, firmes ao toque.
 - **Border:** fio azul de 2px (Strip, bilhete, chave Pix); divisórias internas em fio azul. Notas usam papel fundo ou rosa a 15% sem borda.
 - **Internal Padding:** 12px × 10px nas faixas; 16px × 14px em linhas clicáveis e bilhetes.
 
+### Upload de comprovante
+Área tracejada em fio azul; no desktop aceita arrastar e soltar ("Clique ou arraste o arquivo aqui") e, durante o arraste, o fio fica rosa sobre amarelo a 30%.
+
 ### Inputs / Fields
 - **Style:** fio azul de 2px, fundo transparente, 52px de altura, 6px de canto, texto 19px semibold wdth 85; rótulo Label 16px acima, dica 14px ink-soft abaixo.
 - **Focus:** o fio vira rosa; cursor rosa.
 
 ### Navigation
+- **Trilho do admin (desktop):** 248px, navegação vertical com itens de 48px (ícone 24px + rótulo 17px caixa-alta), ativo em bloco amarelo; selo de pendências alinhado à direita do item.
 - **Abas do admin:** 5 colunas fixas no rodapé, fio azul de 2px no topo, 64px; ícone Phosphor bold 24px sobre rótulo 13px caixa-alta. Ativa: bloco amarelo, texto preto, ícone preenchido. Pendências: disco rosa carimbado no canto do ícone.
 - **Voltar:** link condensado azul profundo com seta, caixa-alta 16px, sublinhado no hover.
 - **Filtros segmentados:** grade em fio azul de 2px; segmento ativo em amarelo.
