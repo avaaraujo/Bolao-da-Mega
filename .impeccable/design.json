@@ -1,0 +1,364 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-03T19:40:01.436Z",
+  "title": "Design System: Bolão da Mega",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "Papel",
+        "canonical": "#fbfaf6",
+        "tonalRamp": [
+          "#262522",
+          "#45443f",
+          "#66645d",
+          "#89867d",
+          "#ada99f",
+          "#d0ccc1",
+          "#ebe8de",
+          "#fbfaf6"
+        ]
+      },
+      "paper-deep": {
+        "role": "neutral",
+        "displayName": "Papel Fundo",
+        "canonical": "#f1efe7",
+        "tonalRamp": [
+          "#25241f",
+          "#44423a",
+          "#646157",
+          "#878376",
+          "#aaa697",
+          "#cdc9b9",
+          "#e3e0d4",
+          "#f1efe7"
+        ]
+      },
+      "riso-pink": {
+        "role": "primary",
+        "displayName": "Rosa Fluo Riso",
+        "canonical": "#ff48b0",
+        "tonalRamp": [
+          "#3d0025",
+          "#6b0043",
+          "#9c0063",
+          "#d10086",
+          "#ff48b0",
+          "#ff86c8",
+          "#ffbadf",
+          "#ffe6f3"
+        ]
+      },
+      "riso-blue": {
+        "role": "secondary",
+        "displayName": "Azul Riso",
+        "canonical": "#0078bf",
+        "tonalRamp": [
+          "#001d33",
+          "#003456",
+          "#005a91",
+          "#0078bf",
+          "#3d9ad6",
+          "#7cbbe5",
+          "#b8dbf2",
+          "#e5f2fb"
+        ]
+      },
+      "blue-deep": {
+        "role": "secondary",
+        "displayName": "Azul Profundo",
+        "canonical": "#005a91",
+        "tonalRamp": [
+          "#001d33",
+          "#003456",
+          "#005a91",
+          "#0078bf",
+          "#3d9ad6",
+          "#7cbbe5",
+          "#b8dbf2",
+          "#e5f2fb"
+        ]
+      },
+      "riso-yellow": {
+        "role": "tertiary",
+        "displayName": "Amarelo Riso",
+        "canonical": "#ffe800",
+        "tonalRamp": [
+          "#332e00",
+          "#5c5300",
+          "#857800",
+          "#b3a200",
+          "#e0cb00",
+          "#ffe800",
+          "#fff27a",
+          "#fffad1"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Tinta Preta",
+        "canonical": "#1a1a1a",
+        "tonalRamp": [
+          "#1a1a1a",
+          "#333333",
+          "#4d4d4d",
+          "#6b6b6b",
+          "#8c8c8c",
+          "#adadad",
+          "#d1d1d1",
+          "#f0f0f0"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Tinta Suave",
+        "canonical": "#4a4a48",
+        "tonalRamp": [
+          "#1c1c1b",
+          "#333332",
+          "#4a4a48",
+          "#666663",
+          "#858581",
+          "#a6a6a2",
+          "#c9c9c5",
+          "#ebebe8"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "poster-xl": {
+        "displayName": "Poster XL",
+        "purpose": "Só o título BOLÃO DA MEGA DO AVÁ, borda a borda, em duas passadas de tinta (auto-ajuste até 2.2x)."
+      },
+      "poster": {
+        "displayName": "Poster",
+        "purpose": "Títulos de tela em caixa-alta; encolhe para caber numa linha (12.5cqi lg, 9cqi md)."
+      },
+      "display": {
+        "displayName": "Display",
+        "purpose": "Valores e nomes grandes: total do Pix, contador de cotas, nome no bilhete, numerais de passos."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Cabeçalhos de seção em azul profundo; mesmo corpo em 18px nos botões, 16px em rótulos de campo, 13px nas abas."
+      },
+      "number": {
+        "displayName": "Number",
+        "purpose": "Algarismos tabulares do volante, mapa de calor e listas de jogos."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Texto corrido, 16-18px."
+      },
+      "small": {
+        "displayName": "Small",
+        "purpose": "Legendas, eixos e notas em ink-soft, 13-14px."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "ease-out-expo",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Entrada do carimbo."
+      },
+      {
+        "name": "stamp",
+        "value": "260ms ease-out-expo; scale 1.35 -> 1, opacity 0 -> 1, com translate/rotate de registro estável por número",
+        "purpose": "Interação assinatura: tocar um número carimba tinta rosa."
+      },
+      {
+        "name": "press",
+        "value": "150ms; translateY(1px) em :active",
+        "purpose": "Resposta tátil de botões e linhas clicáveis."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "animações e transições a 1ms; carimbo sem animação",
+        "purpose": "prefers-reduced-motion: reduce."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "column-max",
+        "value": "480px"
+      }
+    ],
+    "print": [
+      {
+        "name": "paper-grain",
+        "value": "ruído fractal fixo em body::after, multiply, opacidade 0.32",
+        "purpose": "Grão do papel sobre toda a tela."
+      },
+      {
+        "name": "ink-mask",
+        "value": "máscara de turbulência 160px + multiply",
+        "purpose": "Falhas de tinta em carimbos, retículas e faixas de custo."
+      },
+      {
+        "name": "riso-ink-filter",
+        "value": "SVG #riso-ink: falhas + feDisplacementMap scale 2",
+        "purpose": "Títulos-cartaz: falhas e borda irregular."
+      },
+      {
+        "name": "halftone-screens",
+        "value": "pontos rosa em grade 6px: raio 0.9 / 1.5 / 2.1 / 2.75px e chapado",
+        "purpose": "Os 5 níveis fixos de intensidade."
+      },
+      {
+        "name": "registration",
+        "value": "título: passada azul a +0.045em/+0.04em; carimbo: até ±1.8px e ±5deg",
+        "purpose": "Deslocamento de registro entre passadas de tinta."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Botão Primário",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Bloco amarelo da ação principal, na barra fixa do rodapé.",
+      "html": "<button class=\"ds-btn-primary\">CONFIRMAR MEUS NÚMEROS</button>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border-radius:6px;font-size:18px;font-family:Archivo,ui-sans-serif,system-ui,sans-serif;font-weight:800;font-stretch:72%;font-variation-settings:\"wdth\" 72;text-transform:uppercase;letter-spacing:.01em;cursor:pointer;transition:transform 150ms,background-color 150ms,opacity 150ms;border:0;background:#ffe800;color:#1a1a1a}.ds-btn-primary:active{transform:translateY(1px)}.ds-btn-primary:focus-visible{outline:3px solid #ff48b0;outline-offset:2px}.ds-btn-primary:disabled{background:rgba(255,232,0,.45)}"
+    },
+    {
+      "name": "Botão Carimbo",
+      "kind": "button",
+      "refersTo": "button-stamp",
+      "description": "Bloco rosa com texto preto para a saída depois de confirmar o voto.",
+      "html": "<button class=\"ds-btn-stamp\">VOLTAR AO BILHETE</button>",
+      "css": ".ds-btn-stamp{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border-radius:6px;font-size:18px;font-family:Archivo,ui-sans-serif,system-ui,sans-serif;font-weight:800;font-stretch:72%;font-variation-settings:\"wdth\" 72;text-transform:uppercase;letter-spacing:.01em;cursor:pointer;transition:transform 150ms,background-color 150ms,opacity 150ms;border:0;background:#ff48b0;color:#1a1a1a}.ds-btn-stamp:active{transform:translateY(1px)}.ds-btn-stamp:focus-visible{outline:3px solid #ff48b0;outline-offset:2px}"
+    },
+    {
+      "name": "Botão Contorno",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Ação secundária e cancelar: fio azul 2px.",
+      "html": "<button class=\"ds-btn-outline\">CANCELAR</button>",
+      "css": ".ds-btn-outline{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border-radius:6px;font-size:18px;font-family:Archivo,ui-sans-serif,system-ui,sans-serif;font-weight:800;font-stretch:72%;font-variation-settings:\"wdth\" 72;text-transform:uppercase;letter-spacing:.01em;cursor:pointer;transition:transform 150ms,background-color 150ms,opacity 150ms;border:2px solid #0078bf;background:transparent;color:#005a91}.ds-btn-outline:active{transform:translateY(1px)}.ds-btn-outline:focus-visible{outline:3px solid #ff48b0;outline-offset:2px}.ds-btn-outline:hover{background:rgba(0,120,191,.05)}"
+    },
+    {
+      "name": "Botão Recusar (danger)",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Ação destrutiva isolada, só em contorno preto até confirmar.",
+      "html": "<button class=\"ds-btn-danger\">RECUSAR PAGAMENTO</button>",
+      "css": ".ds-btn-danger{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border-radius:6px;font-size:18px;font-family:Archivo,ui-sans-serif,system-ui,sans-serif;font-weight:800;font-stretch:72%;font-variation-settings:\"wdth\" 72;text-transform:uppercase;letter-spacing:.01em;cursor:pointer;transition:transform 150ms,background-color 150ms,opacity 150ms;min-height:44px;font-size:15px;border:2px solid #1a1a1a;background:transparent;color:#1a1a1a}.ds-btn-danger:active{transform:translateY(1px)}.ds-btn-danger:focus-visible{outline:3px solid #ff48b0;outline-offset:2px}.ds-btn-danger:hover{background:rgba(26,26,26,.05)}"
+    },
+    {
+      "name": "Botão Solid",
+      "kind": "button",
+      "refersTo": "button-solid",
+      "description": "Confirmação final de ação destrutiva ou irreversível.",
+      "html": "<button class=\"ds-btn-solid\">SIM, RECUSAR</button>",
+      "css": ".ds-btn-solid{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border-radius:6px;font-size:18px;font-family:Archivo,ui-sans-serif,system-ui,sans-serif;font-weight:800;font-stretch:72%;font-variation-settings:\"wdth\" 72;text-transform:uppercase;letter-spacing:.01em;cursor:pointer;transition:transform 150ms,background-color 150ms,opacity 150ms;border:0;background:#1a1a1a;color:#fbfaf6}.ds-btn-solid:active{transform:translateY(1px)}.ds-btn-solid:focus-visible{outline:3px solid #ff48b0;outline-offset:2px}"
+    },
+    {
+      "name": "Campo",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Campo em fio azul que vira rosa no foco.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">SEU NOME</span><input class=\"ds-field-input\" placeholder=\"Como o grupo te chama\"/></label>",
+      "css": ".ds-field{display:flex;flex-direction:column;gap:6px;font-family:Archivo,ui-sans-serif,system-ui,sans-serif}.ds-field-label{font-size:16px;font-family:Archivo,ui-sans-serif,system-ui,sans-serif;font-weight:800;font-stretch:72%;font-variation-settings:\"wdth\" 72;text-transform:uppercase;letter-spacing:.01em;color:#005a91}.ds-field-input{height:52px;padding:0 12px;border-radius:6px;border:2px solid #0078bf;background:transparent;font-family:Archivo,ui-sans-serif,system-ui,sans-serif;font-size:19px;font-weight:600;font-stretch:85%;color:#1a1a1a;caret-color:#ff48b0}.ds-field-input::placeholder{color:rgba(74,74,72,.7)}.ds-field-input:focus{border-color:#ff48b0;outline:none}"
+    },
+    {
+      "name": "Faixa (Strip)",
+      "kind": "card",
+      "refersTo": "strip",
+      "description": "Faixa de status em fio azul com itens separados por ponto.",
+      "html": "<div class=\"ds-strip\"><span>Otávio</span><span class=\"ds-dot\">·</span><span>3 cotas</span><span class=\"ds-dot\">·</span><span>R$ 180</span><span class=\"ds-dot\">·</span><span>Pix pendente</span></div>",
+      "css": ".ds-strip{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;padding:10px 12px;border:2px solid #0078bf;border-radius:6px;font-family:Archivo,ui-sans-serif,system-ui,sans-serif;font-size:15px;font-weight:600;font-stretch:85%;color:#005a91;background:#fbfaf6}.ds-dot{color:#0078bf}"
+    },
+    {
+      "name": "Chip de Número",
+      "kind": "chip",
+      "refersTo": "number-chip",
+      "description": "Algarismo azul sobre disco rosa carimbado, registro deslocado.",
+      "html": "<span class=\"ds-chip\"><span class=\"ds-chip-ink\"></span><span class=\"ds-chip-n\">42</span></span>",
+      "css": ".ds-chip{position:relative;display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;font-family:Archivo,ui-sans-serif,system-ui,sans-serif;font-size:18px;font-weight:700;font-stretch:85%;color:#005a91;font-variant-numeric:tabular-nums}.ds-chip-ink{position:absolute;inset:0;border-radius:9999px;background:#ff48b0;mix-blend-mode:multiply;transform:translate(1.2px,-0.6px) rotate(-3deg)}.ds-chip-n{position:relative;mix-blend-mode:multiply}"
+    },
+    {
+      "name": "Abas do Admin",
+      "kind": "nav",
+      "refersTo": "tab-active",
+      "description": "Barra fixa de abas no rodapé; ativa em bloco amarelo.",
+      "html": "<nav class=\"ds-tabs\"><a class=\"ds-tab\" href=\"#\">PIX</a><a class=\"ds-tab\" href=\"#\">RANKING</a><a class=\"ds-tab is-active\" href=\"#\">JOGOS</a></nav>",
+      "css": ".ds-tabs{display:grid;grid-template-columns:repeat(3,1fr);border-top:2px solid #0078bf;background:#fbfaf6}.ds-tab{display:flex;align-items:center;justify-content:center;height:64px;font-size:13px;font-family:Archivo,ui-sans-serif,system-ui,sans-serif;font-weight:800;font-stretch:72%;font-variation-settings:\"wdth\" 72;text-transform:uppercase;letter-spacing:.01em;color:#005a91;text-decoration:none}.ds-tab:hover{background:#f1efe7}.ds-tab:focus-visible{outline:3px solid #ff48b0;outline-offset:-3px}.ds-tab.is-active{background:#ffe800;color:#1a1a1a}"
+    },
+    {
+      "name": "Volante",
+      "kind": "custom",
+      "refersTo": "number-chip",
+      "description": "Grade 6x10 em fio azul; tocar carimba tinta rosa.",
+      "html": "<div class=\"ds-volante\"><button class=\"ds-cell\">01</button><button class=\"ds-cell\">02</button><button class=\"ds-cell is-on\">03</button><button class=\"ds-cell\">04</button><button class=\"ds-cell\">05</button><button class=\"ds-cell\">06</button></div>",
+      "css": ".ds-volante{display:grid;grid-template-columns:repeat(6,1fr);gap:2px;border:2px solid #0078bf;border-radius:3px;background:#0078bf}.ds-cell{position:relative;height:52px;border:0;background:#fbfaf6;font-family:Archivo,ui-sans-serif,system-ui,sans-serif;font-size:26px;font-weight:700;font-stretch:85%;color:#005a91;cursor:pointer;transition:background-color 150ms}.ds-cell:hover{background:#f1efe7}.ds-cell:active{background:rgba(255,232,0,.4)}.ds-cell:focus-visible{outline:3px solid #ff48b0;outline-offset:2px;z-index:1}.ds-cell.is-on::before{content:\"\";position:absolute;inset:0;margin:auto;height:78%;aspect-ratio:1;border-radius:9999px;background:#ff48b0;mix-blend-mode:multiply;transform:translate(-1.2px,.6px) rotate(4deg)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "O Zine de Risografia da Firma",
+    "overview": "Cada tela é uma folha impressa em risografia: papel quase branco com grão, quatro tintas chapadas (rosa fluo, azul, amarelo e preto) e nenhuma luz, sombra ou vidro. A profundidade vem de passadas de tinta sobrepostas em multiply, com o registro levemente deslocado, e da falha irregular que a tinta deixa no papel. Votar é carimbar: tocar um número pousa um disco de tinta rosa sobre o algarismo azul.\n\nA coluna é de celular (até 480px), densa e direta. Títulos de tela são cartazes ultracondensados que vão de borda a borda; dados são algarismos tabulares semicondensados; estruturas são fios azuis de 2px. O amarelo é reservado para a ação e para o estado ativo; o rosa, para seleção, voto e acúmulo. Recusa o app de loteria verde com bolinhas, gradientes e cards elevados.",
+    "keyCharacteristics": [
+      "Papel #fbfaf6 com ruído fixo em multiply sobre toda a tela.",
+      "Quatro tintas chapadas; sobreposição em multiply é a única forma de \"mistura\".",
+      "Títulos-cartaz em duas passadas (azul por baixo, rosa por cima, deslocado ~0.045em).",
+      "Grades e contornos em fio azul de 2px; cantos discretos (2–6px).",
+      "Retícula de meio-tom em 5 níveis fixos para intensidade, nunca degradê.",
+      "Carimbo rosa com registro deslocado estável por número como interação assinatura."
+    ],
+    "rules": [
+      {
+        "name": "The Tinta Não Fala Baixo Rule",
+        "body": "Rosa e amarelo nunca carregam texto pequeno. Aparecem só como display, carimbo, bloco ou fundo; o texto sobre eles é preto (ink) ou azul profundo.",
+        "section": "colors"
+      },
+      {
+        "name": "The Uma Tinta, Um Papel Rule",
+        "body": "Amarelo é ação e estado ativo; rosa é voto, seleção e acúmulo; azul é estrutura e texto de dado; preto é leitura e decisão final. Não troque os papéis.",
+        "section": "colors"
+      },
+      {
+        "name": "The Multiply Rule",
+        "body": "Quando duas tintas se encontram, sobrepõem em `mix-blend-mode: multiply`, como a riso imprime; nunca uma cobre a outra opaca.",
+        "section": "colors"
+      },
+      {
+        "name": "The Largura É Hierarquia Rule",
+        "body": "A hierarquia vem do eixo de largura e do peso, não de famílias extras: cartaz em wdth 50–60, display 62, rótulo 72, dado 85, leitura 100.",
+        "section": "typography"
+      },
+      {
+        "name": "The Algarismo Tabular Rule",
+        "body": "`font-variant-numeric: tabular-nums` no corpo inteiro; números sempre com dois dígitos (01–60).",
+        "section": "typography"
+      },
+      {
+        "name": "The Sem Sombra Rule",
+        "body": "Nenhum `box-shadow`, nenhum blur de vidro como material. O deslocamento de registro entre duas tintas é a única \"sombra\" do sistema.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Retícula Fixa Rule",
+        "body": "Intensidade (mapa de calor, legenda) só em 5 retículas de meio-tom rosa fixas (pontos em grade de 6px, ~10/30/50/70% e chapado). Nunca degradê contínuo nem opacidade arbitrária.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do compor cada tela com as quatro tintas sobre papel #fbfaf6 e sobrepor em multiply.",
+      "Do abrir as telas com título-cartaz InkTitle (azul por baixo, rosa por cima) cabendo numa linha.",
+      "Do usar fio azul de 2px para toda estrutura: grades, faixas, campos, divisórias.",
+      "Do colocar a ação principal num bloco amarelo de largura total na barra fixa do rodapé.",
+      "Do marcar seleção e voto com carimbo rosa de registro deslocado, determinístico por número.",
+      "Do representar intensidade só com as 5 retículas fixas.",
+      "Do manter ações destrutivas em contorno preto, isoladas, e confirmar com o bloco preto.",
+      "Do respeitar `prefers-reduced-motion`: carimbos aparecem sem animação."
+    ],
+    "donts": [
+      "Don't usar rosa ou amarelo para texto pequeno.",
+      "Don't usar `box-shadow`, cards elevados, vidro ou brilho.",
+      "Don't usar degradê contínuo ou opacidade livre para representar quantidade; os gradientes radiais das retículas são pontos de meio-tom, não rampas.",
+      "Don't introduzir verde, bolinhas de loteria ou qualquer cor fora das quatro tintas.",
+      "Don't arredondar além de 6px, exceto discos de tinta.",
+      "Don't usar outra família tipográfica; varie a largura de Archivo e Anybody."
+    ]
+  }
+}

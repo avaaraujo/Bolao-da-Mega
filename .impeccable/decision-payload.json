@@ -1,0 +1,132 @@
+{
+  "title": "Bolão da Mega: escolha o mundo visual",
+  "question": "5 direções para a tela do volante no celular. Fique com a sorteada, escolha outra, ou peça um novo sorteio.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "Riso da Firma",
+      "kicker": "THE ROLL",
+      "lineage": "zines e flyers de festa impressos em risografia",
+      "thesis": "O bolão impresso como um zine de risografia da agência: cada voto é tinta, e os números mais votados acumulam camadas.",
+      "palette": ["#FF48B0", "#0078BF", "#FFE800", "#FBFAF6", "#1A1A1A"],
+      "materials": ["sobreposição de tintas fluo", "registro fora de esquadro", "retícula de meio-tom"],
+      "viewport": "Título BOLÃO DA MEGA enorme em rosa fluo sobre azul deslocado; volante 6×10 impresso em azul; cada número tocado leva um carimbo rosa sobreposto; barra amarela fixa para confirmar.",
+      "risk": "Grão e desalinhamento demais atrapalham ler números pequenos; nas telas de dados a tinta precisa de contenção.",
+      "raised": [
+        {"from": "challenger-darkroom", "raise": "O mapa de calor do ranking usa só 5 retículas fixas (10/30/50/70/100%), nunca um degradê contínuo."},
+        {"from": "challenger-console", "raise": "Recusar pagamento fica isolado, só em contorno, até ser confirmado."},
+        {"from": "challenger-laban", "raise": "Na montagem, o comprimento de cada jogo é proporcional ao custo: o jogo de 12 ocupa 5544/6120 da coluna."}
+      ],
+      "comp": ".impeccable/mocks/decision/assigned.png"
+    },
+    {
+      "id": "model-pick",
+      "label": "Top 60 da Firma",
+      "kicker": "IMPECCABLE’S PICK",
+      "lineage": "paradas de sucesso e contagens regressivas de rádio/TV",
+      "thesis": "Os números são hits: o voto do grupo vira uma parada, e os jogos são montados com o topo da parada.",
+      "palette": ["#FFFFFF", "#0E0E0E", "#E10600", "#00A651"],
+      "materials": ["numerais tabulares gigantes", "setas de sobe/desce", "fios de tabela"],
+      "viewport": "Volante como lista de 60 faixas com numerais enormes; os 6 escolhidos ganham posição #1–#6 na sua parada pessoal; a parada do grupo só aparece depois das apostas.",
+      "risk": "É a direção mais óbvia para quem já conhece o produto; e como o ranking fica escondido até a aposta, o mundo só se completa no admin e na revelação.",
+      "comp": ".impeccable/mocks/decision/model-pick.png"
+    },
+    {
+      "id": "challenger-boarding",
+      "label": "Cartão de Embarque",
+      "verdict": "competitive",
+      "lineage": "cartão de embarque + painel de portões do aeroporto",
+      "thesis": "Cada participação é um cartão de embarque com número de sequência (que desempata o ranking), e o ranking é um painel que reordena no lugar.",
+      "palette": ["#F6F6F3", "#121212", "#FFB000", "#5A5A5A"],
+      "materials": ["segmentos picotados", "bloco escaneável monoespaçado", "painel de linhas"],
+      "viewport": "Cartão no topo com segmentos NOME / COTAS / PIX / SEQ; abaixo, o volante como mapa de assentos de 60 lugares; status muda e fica aceso em âmbar.",
+      "case": "Funde bem: a ordem de inscrição vira número de sequência e o ranking vira painel; ganha em clareza, perde em identificação com a agência.",
+      "risk": "Se o mapa de assentos ficar fofo vira fantasia; os cinzas de companhia aérea podem soar corporativos.",
+      "comp": ".impeccable/mocks/decision/challenger-boarding.png",
+      "hero": "https://impeccable.style/worlds/cards/vernacular-ephemera-boarding-pass-and-gate-board-hero.webp"
+    },
+    {
+      "id": "challenger-map",
+      "label": "Mapa do Bolão",
+      "verdict": "competitive",
+      "lineage": "mapa-guia de zoológico e jardim botânico",
+      "thesis": "Cada tela é um território de cor chapada; o volante é uma península verde e os números escolhidos são cápsulas fincadas na costa.",
+      "palette": ["#8ED462", "#F5F1E4", "#2C2E2A", "#F5E211", "#FF705D", "#2BA0FF"],
+      "materials": ["cor chapada sem grão", "contornos orgânicos em SVG", "cápsulas"],
+      "viewport": "Uma grande massa verde transborda dois lados da tela segurando a grade de 60 números; cápsulas amarela, coral, azul e lilás mostram os escolhidos; botão em cápsula.",
+      "case": "Funde bem: o pessoal de agência se identifica com a ousadia gráfica; perde em clareza nas listas densas do admin.",
+      "risk": "As massas de cor comem espaço nas listas de pagamentos; as listas precisam ficar em tinta simples sobre o fundo.",
+      "comp": ".impeccable/mocks/decision/challenger-map.png",
+      "hero": "https://impeccable.style/worlds/cards/aww2-zoo-gardens-guide-map-hero.webp"
+    },
+    {
+      "id": "challenger-catalog",
+      "label": "Catálogo de Bancas",
+      "verdict": "competitive",
+      "lineage": "catálogo de feira de quadrinhos impresso em papel jornal",
+      "thesis": "O volante é uma grade numerada impressa em papel jornal, marcada à mão com caneta Bic azul, como se faz no volante de verdade.",
+      "palette": ["#E9E6DE", "#151515", "#2D5BFF", "#FF3B30"],
+      "materials": ["papel jornal", "tinta preta única", "círculos de caneta esferográfica"],
+      "viewport": "60 células numeradas coladas umas nas outras; os 6 escolhidos circulados em azul Bic com uma linha ligando a ordem da escolha; cabeçalho em fio vermelho.",
+      "case": "Funde bem: marcar o volante com caneta é o gesto mais reconhecível do produto; ganha em clareza, empata em identificação.",
+      "risk": "O papel jornal pode parecer sujo ou pobre se a tipografia não tiver precisão.",
+      "comp": ".impeccable/mocks/decision/challenger-catalog.png",
+      "hero": "https://impeccable.style/worlds/cards/pop-culture-shelf-doujin-event-catalog-hero.webp"
+    },
+    {
+      "id": "challenger-darkroom",
+      "label": "Ficha de Ampliação",
+      "verdict": "declined",
+      "lineage": "ficha de exposição de laboratório fotográfico",
+      "thesis": "Folhas translúcidas sobre uma escala de 11 zonas, com hachuras indicando densidade.",
+      "palette": ["#0F0F0F", "#BDBDBD", "#F2F2F2", "#D6247A"],
+      "materials": ["papel vegetal", "hachura"],
+      "viewport": "Folhas sobrepostas com o volante hachurado.",
+      "risk": "Ninguém no grupo vive um laboratório fotográfico; o conflito por hachura confunde.",
+      "case": "Perde nos dois eixos.",
+      "kept": "Escala tonal fixa em degraus para o mapa de calor.",
+      "hero": "https://impeccable.style/worlds/cards/operate-b-exposure-record-zone-sheets-hero.webp"
+    },
+    {
+      "id": "challenger-console",
+      "label": "Console Escuro",
+      "verdict": "declined",
+      "lineage": "console de desenvolvedor dark-first",
+      "thesis": "Grafite com fios de 1px e cores de sintaxe só para estado.",
+      "palette": ["#16181C", "#2A2E35", "#7EE787", "#FF7B72"],
+      "materials": ["fios de 1px", "painéis"],
+      "viewport": "Painéis grafite com o volante em grade monoespaçada.",
+      "risk": "Genérico e frio para um bolão entre colegas.",
+      "case": "Perde nos dois eixos.",
+      "kept": "Ações destrutivas isoladas e só em contorno.",
+      "hero": "https://impeccable.style/worlds/cards/digital-design-canon-dark-first-developer-console-hero.webp"
+    },
+    {
+      "id": "challenger-laban",
+      "label": "Partitura de Dança",
+      "verdict": "declined",
+      "lineage": "notação de dança Labanotation",
+      "thesis": "Pauta vertical em que o comprimento do bloco é a duração exata.",
+      "palette": ["#FFFFFF", "#000000", "#D9D9D9"],
+      "materials": ["blocos sólidos", "hachuras"],
+      "viewport": "Volante como pauta vertical simétrica.",
+      "risk": "Ilegível para quem não conhece a notação.",
+      "case": "Perde nos dois eixos.",
+      "kept": "Tamanho do bloco = valor exato (custo de cada jogo).",
+      "hero": "https://impeccable.style/worlds/cards/notation-diagram-systems-labanotation-hero.webp"
+    }
+  ],
+  "reroll": {"registers": ["safer", "bolder"]},
+  "buildPath": {"value": "comp", "toggle": true},
+  "canon": true,
+  "canonCard": {
+    "label": "Padrão de app de loteria",
+    "thesis": "O que todo app de loteria entrega, executado com capricho.",
+    "palette": ["#FFFFFF", "#209869", "#1F2937", "#F3F4F6"],
+    "materials": ["cards limpos", "bolinhas numeradas"],
+    "viewport": "Header verde, grade de bolinhas 1–60, resumo das cotas em card, botão verde fixo.",
+    "risk": "Igual a qualquer app de loteria, de propósito.",
+    "comp": ".impeccable/mocks/decision/canon.png"
+  },
+  "steer": true
+}

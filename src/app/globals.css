@@ -1,0 +1,152 @@
+@import "tailwindcss";
+
+/* Tintas de risografia. Rosa e amarelo nunca carregam texto pequeno: só display, carimbos e blocos. */
+@theme {
+  --color-paper: #fbfaf6;
+  --color-paper-deep: #f1efe7;
+  --color-pink: #ff48b0;
+  --color-blue: #0078bf;
+  --color-blue-deep: #005a91;
+  --color-yellow: #ffe800;
+  --color-ink: #1a1a1a;
+  --color-ink-soft: #4a4a48;
+
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root {
+  color-scheme: light;
+  --gutter: 16px;
+}
+
+html {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--color-paper);
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  min-height: 100dvh;
+}
+
+/* Grão do papel: ruído fixo por cima de tudo, bem leve. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0.32;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.42 0 0 0 0 0.36 0 0 0 0.22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+::selection {
+  background: var(--color-yellow);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-pink);
+  outline-offset: 2px;
+}
+
+input,
+textarea {
+  caret-color: var(--color-pink);
+}
+
+* {
+  scrollbar-color: var(--color-blue) transparent;
+  scrollbar-width: thin;
+}
+
+/* Display condensado: a voz do zine. */
+.display {
+  font-family: var(--font-sans);
+  font-weight: 900;
+  font-stretch: 62%;
+  font-variation-settings: "wdth" 62;
+  line-height: 0.86;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+/* Títulos de tela: Anybody no limite de largura. */
+.poster {
+  font-family: var(--font-anybody), var(--font-sans);
+  font-weight: 850;
+  font-stretch: 60%;
+  font-variation-settings: "wdth" 60;
+  line-height: 0.84;
+  text-transform: uppercase;
+}
+
+.condensed {
+  font-variation-settings: "wdth" 72;
+  font-stretch: 72%;
+}
+
+.semi {
+  font-variation-settings: "wdth" 85;
+  font-stretch: 85%;
+}
+
+/* Tinta: aplicada a camadas que imitam a passagem de cada cor na riso. */
+/* Falhas da tinta como máscara pré-renderizada: barata para dezenas de células. */
+.ink {
+  mix-blend-mode: multiply;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.4 2.35'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+  mask-size: 160px 160px;
+}
+
+/* O título principal vai ao limite da largura, como cartaz. */
+.poster-xl {
+  font-weight: 900;
+  font-stretch: 50%;
+  font-variation-settings: "wdth" 50;
+}
+
+/* Títulos: poucas peças grandes, então ganham o filtro completo (borda irregular). */
+.ink-title,
+.ink-top {
+  filter: url(#riso-ink);
+}
+
+.ink-title {
+  mix-blend-mode: multiply;
+}
+
+/* Retículas de meio-tom para o mapa de calor: 5 níveis fixos, nunca degradê. */
+.screen-1 { background-image: radial-gradient(circle, var(--color-pink) 0.9px, transparent 1.3px); background-size: 6px 6px; }
+.screen-2 { background-image: radial-gradient(circle, var(--color-pink) 1.5px, transparent 1.9px); background-size: 6px 6px; }
+.screen-3 { background-image: radial-gradient(circle, var(--color-pink) 2.1px, transparent 2.5px); background-size: 6px 6px; }
+.screen-4 { background-image: radial-gradient(circle, var(--color-pink) 2.75px, transparent 3.1px); background-size: 6px 6px; }
+.screen-5 { background: var(--color-pink); }
+
+/* Carimbo: entra pressionando, com o registro deslocado. */
+@keyframes stamp {
+  0% { transform: translate(var(--sx), var(--sy)) rotate(var(--sr)) scale(1.35); opacity: 0; }
+  60% { opacity: 1; }
+  100% { transform: translate(var(--sx), var(--sy)) rotate(var(--sr)) scale(1); opacity: 1; }
+}
+
+.stamp {
+  transform: translate(var(--sx), var(--sy)) rotate(var(--sr));
+  animation: stamp 260ms var(--ease-out-expo) both;
+}
+
+@keyframes rise {
+  from { transform: translateY(10px); opacity: 0.001; }
+  to { transform: none; opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stamp { animation: none; }
+  *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; }
+}
