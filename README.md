@@ -2,6 +2,8 @@
 
 Plataforma mobile-first para o bolão da Mega da Virada da firma: cotas de R$ 60, Pix, comprovante, 6 números por pessoa, ranking dos números e montagem automática dos jogos (maior jogo primeiro, ranking em sequência sem repetir).
 
+No ar (modo demo): https://bolaodamega-doava.vercel.app
+
 ## Rodar
 
 ```bash
