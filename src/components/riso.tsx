@@ -9,14 +9,45 @@ export function cx(...c: (string | false | null | undefined)[]) {
   return c.filter(Boolean).join(" ");
 }
 
-/** Coluna de celular: tudo nasce aqui, centralizado no desktop. */
-export function Sheet({ children, bar, className }: { children: ReactNode; bar?: ReactNode; className?: string }) {
+/**
+ * Folha do zine. No celular, uma coluna. No desktop vira página dupla:
+ * a "capa" (children + ação) fica fixa à esquerda e o trabalho (side) corre à direita.
+ */
+export function Sheet({
+  children,
+  side,
+  bar,
+  barIn = "cover",
+  className,
+}: {
+  children: ReactNode;
+  side?: ReactNode;
+  bar?: ReactNode;
+  /** No desktop, em qual coluna a ação principal fica: junto da capa ou no fim do trabalho. */
+  barIn?: "cover" | "side";
+  className?: string;
+}) {
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-[480px] flex-col [container-type:inline-size]">
-      <main className={cx("flex flex-1 flex-col px-[var(--gutter)] pt-[max(20px,env(safe-area-inset-top))]", bar ? "pb-32" : "pb-10", className)}>
-        {children}
+    <div className={cx("mx-auto flex min-h-dvh w-full max-w-[480px] flex-col", side ? "lg:max-w-[1200px]" : "lg:max-w-[600px]")}>
+      <main
+        className={cx(
+          "flex flex-1 flex-col px-[var(--gutter)] pt-[max(20px,env(safe-area-inset-top))] lg:px-12 lg:pt-14",
+          bar ? "pb-32 lg:pb-16" : "pb-10 lg:pb-16",
+          !!side && "lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:content-start lg:items-start lg:gap-x-[clamp(48px,6vw,96px)]",
+          className,
+        )}
+      >
+        <div className={cx("flex flex-col [container-type:inline-size]", side ? "lg:sticky lg:top-14" : "flex-1")}>
+          {children}
+          {(!side || barIn === "cover") && bar}
+        </div>
+        {side && (
+          <div className="flex flex-col [container-type:inline-size] lg:pt-1">
+            {side}
+            {barIn === "side" && bar}
+          </div>
+        )}
       </main>
-      {bar}
     </div>
   );
 }
@@ -58,7 +89,10 @@ export function InkTitle({
   }, [children, size]);
 
   return (
-    <Tag ref={ref} className={cx("poster relative whitespace-nowrap pr-[0.04em] pb-[0.04em]", size === "xl" && "poster-xl", font, className)}>
+    <Tag
+      ref={ref}
+      className={cx("poster relative whitespace-nowrap pr-[0.04em] pb-[0.04em]", size === "xl" && "poster-xl", font, className)}
+    >
       <span aria-hidden="true" className="ink-title absolute top-[0.045em] left-[0.04em] inline-block whitespace-pre text-blue">
         {children}
       </span>
@@ -82,7 +116,11 @@ export function Strip({ children, className }: { children: ReactNode; className?
 }
 
 export function Dot() {
-  return <span aria-hidden="true" className="text-blue">·</span>;
+  return (
+    <span aria-hidden="true" className="text-blue">
+      ·
+    </span>
+  );
 }
 
 /** Cabeçalho de seção: caixa-alta condensada em azul, contador opcional à direita. */
@@ -115,7 +153,11 @@ export function Stamp({ n, className }: { n: number; className?: string }) {
 
 /** Uma bolinha de número carimbada, para listas de números. */
 export function NumberChip({ n, size = "md", stamped = true }: { n: number; size?: "sm" | "md" | "lg"; stamped?: boolean }) {
-  const box = { sm: "h-8 w-8 text-[15px]", md: "h-10 w-10 text-[18px]", lg: "h-[13.5cqi] w-[13.5cqi] max-h-16 max-w-16 text-[clamp(20px,6.4cqi,28px)]" }[size];
+  const box = {
+    sm: "h-8 w-8 text-[15px]",
+    md: "h-10 w-10 text-[18px]",
+    lg: "h-[13.5cqi] w-[13.5cqi] max-h-16 max-w-16 text-[clamp(20px,6.4cqi,28px)]",
+  }[size];
   return (
     <span className={cx("semi relative inline-flex items-center justify-center font-bold text-blue-deep", box)}>
       {stamped && <Stamp n={n} className="h-full" />}
@@ -148,8 +190,8 @@ export function ButtonLink({ variant = "primary", className, ...props }: Compone
 /** Barra fixa no rodapé com a ação principal da tela. */
 export function ActionBar({ children, note }: { children: ReactNode; note?: ReactNode }) {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40">
-      <div className="mx-auto w-full max-w-[480px] bg-paper/95 px-[var(--gutter)] pt-3 pb-[max(14px,env(safe-area-inset-bottom))] backdrop-blur-[2px]">
+    <div className="fixed inset-x-0 bottom-0 z-40 lg:static lg:mt-10">
+      <div className="mx-auto w-full max-w-[480px] bg-paper/95 px-[var(--gutter)] pt-3 pb-[max(14px,env(safe-area-inset-bottom))] backdrop-blur-[2px] lg:max-w-none lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
         {note && <p className="semi mb-2 text-center text-[14px] font-semibold text-ink-soft">{note}</p>}
         <div className="flex flex-col gap-2 [&>*]:w-full [&>*]:min-h-14">{children}</div>
       </div>
@@ -157,11 +199,7 @@ export function ActionBar({ children, note }: { children: ReactNode; note?: Reac
   );
 }
 
-export function Field({
-  label,
-  hint,
-  ...props
-}: ComponentProps<"input"> & { label: string; hint?: string }) {
+export function Field({ label, hint, ...props }: ComponentProps<"input"> & { label: string; hint?: string }) {
   return (
     <label className="flex flex-col gap-1.5">
       <span className="condensed text-[16px] font-extrabold uppercase text-blue-deep">{label}</span>

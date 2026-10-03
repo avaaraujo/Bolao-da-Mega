@@ -6,30 +6,18 @@ import { cx, Stamp } from "./riso";
 
 const ALL = Array.from({ length: NUMBERS }, (_, i) => i + 1);
 
-const rowHeight = "h-[clamp(44px,calc((100dvh-410px)/10),58px)]";
+const rowHeight = "h-[clamp(44px,calc((100dvh-410px)/10),58px)] lg:h-[clamp(56px,calc((100dvh-190px)/10),84px)]";
 
 function Frame({ children, label }: { children: React.ReactNode; label: string }) {
   return (
-    <div
-      role="group"
-      aria-label={label}
-      className="grid grid-cols-6 gap-[2px] rounded-[3px] border-2 border-blue bg-blue"
-    >
+    <div role="group" aria-label={label} className="grid grid-cols-6 gap-[2px] rounded-[3px] border-2 border-blue bg-blue">
       {children}
     </div>
   );
 }
 
 /** Volante para marcar 6 números: cada toque carimba tinta rosa sobre o número azul. */
-export function Volante({
-  selected,
-  onToggle,
-  disabled,
-}: {
-  selected: number[];
-  onToggle: (n: number) => void;
-  disabled?: boolean;
-}) {
+export function Volante({ selected, onToggle, disabled }: { selected: number[]; onToggle: (n: number) => void; disabled?: boolean }) {
   return (
     <Frame label="Volante de 1 a 60">
       {ALL.map((n) => {
@@ -43,7 +31,7 @@ export function Volante({
             disabled={disabled}
             onClick={() => onToggle(n)}
             className={cx(
-              "semi relative flex items-center justify-center bg-paper text-[clamp(22px,7.4cqi,30px)] font-bold text-blue-deep transition-colors",
+              "semi relative flex items-center justify-center bg-paper text-[clamp(22px,7.4cqi,40px)] font-bold text-blue-deep transition-colors",
               rowHeight,
               !on && !disabled && "hover:bg-paper-deep active:bg-yellow/40",
             )}
@@ -58,13 +46,7 @@ export function Volante({
 }
 
 /** Mapa de calor do ranking: 5 retículas fixas de tinta rosa. */
-export function HeatGrid({
-  votes,
-  highlight = [],
-}: {
-  votes: Map<number, number>;
-  highlight?: number[];
-}) {
+export function HeatGrid({ votes, highlight = [] }: { votes: Map<number, number>; highlight?: number[] }) {
   const max = Math.max(0, ...votes.values());
   return (
     <Frame label="Mapa de calor dos números votados">
@@ -80,7 +62,7 @@ export function HeatGrid({
             {level > 0 && <span aria-hidden="true" className={cx("ink absolute inset-0", `screen-${level}`)} />}
             <span
               className={cx(
-                "semi relative -translate-y-[3px] rounded-[2px] bg-paper/85 px-1 text-[clamp(20px,6.6cqi,27px)] font-bold leading-none",
+                "semi relative -translate-y-[3px] rounded-[2px] bg-paper/85 px-1 text-[clamp(20px,6.6cqi,36px)] font-bold leading-none",
                 "text-blue-deep",
                 highlight.includes(n) && "underline decoration-[3px] underline-offset-[5px]",
               )}

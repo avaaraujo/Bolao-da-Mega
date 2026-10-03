@@ -28,7 +28,8 @@ function steps(p: Participant, token: string, editable: boolean): Step[] {
     {
       done: p.numbers.length === 6,
       title: "Seus 6 números",
-      detail: p.numbers.length === 6 ? (editable ? "Dá para trocar até fechar as inscrições." : "Números travados.") : "Ainda não marcados.",
+      detail:
+        p.numbers.length === 6 ? (editable ? "Dá para trocar até fechar as inscrições." : "Números travados.") : "Ainda não marcados.",
       href: `/p/${token}/volante`,
       action: p.numbers.length === 6 ? (editable ? "Trocar" : "Ver") : "Marcar",
     },
@@ -77,9 +78,82 @@ export default function Bilhete() {
     ) : null;
 
   return (
-    <Sheet bar={bar ? <ActionBar>{bar}</ActionBar> : undefined}>
+    <Sheet
+      bar={bar ? <ActionBar>{bar}</ActionBar> : undefined}
+      side={
+        <>
+          <section className="mt-8 lg:mt-0">
+            <Label>Andamento</Label>
+            <ol className="mt-2">
+              {list.map((s) => (
+                <li key={s.title} className="flex items-center gap-3 border-t border-blue/40 py-3 first:border-t-0">
+                  <span
+                    aria-hidden="true"
+                    className={cx(
+                      "relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
+                      !s.done && "border-2 border-blue/50",
+                    )}
+                  >
+                    {s.done && (
+                      <>
+                        <span className="ink absolute inset-0 rounded-full bg-pink" />
+                        <Check size={18} weight="bold" className="relative text-ink" />
+                      </>
+                    )}
+                  </span>
+                  <span className="flex min-w-0 flex-1 flex-col">
+                    <span className="condensed text-[18px] font-extrabold uppercase leading-tight text-ink">
+                      {s.title}
+                      <span className="sr-only">{s.done ? " (feito)" : " (pendente)"}</span>
+                    </span>
+                    <span className="text-[15px] leading-snug text-ink-soft">{s.detail}</span>
+                  </span>
+                  {s.href && s.action && (
+                    <Link
+                      href={s.href}
+                      className="condensed min-h-11 shrink-0 content-center px-1 text-[16px] font-extrabold uppercase text-blue-deep underline underline-offset-4"
+                    >
+                      {s.action}
+                    </Link>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </section>
+
+          {participant.payment === "recusado" && participant.rejectReason && (
+            <p className="mt-4 rounded-md bg-pink/15 px-3 py-2.5 text-[15px] leading-snug text-ink">
+              <strong className="font-bold">Motivo da recusa:</strong> {participant.rejectReason}
+            </p>
+          )}
+
+          <section className="mt-8 flex items-start gap-3 rounded-md bg-paper-deep px-4 py-3.5">
+            <LinkSimple size={22} weight="bold" className="mt-0.5 shrink-0 text-blue-deep" aria-hidden="true" />
+            <div className="flex flex-col gap-2">
+              <p className="text-[15px] leading-snug text-ink">
+                Este link é o seu bilhete. Guarde para acompanhar, principalmente se trocar de celular.
+              </p>
+              <button
+                type="button"
+                onClick={copyLink}
+                className="condensed flex min-h-11 items-center gap-1.5 self-start text-[16px] font-extrabold uppercase text-blue-deep"
+              >
+                <Copy size={18} weight="bold" aria-hidden="true" /> Copiar link
+              </button>
+            </div>
+          </section>
+
+          <p className="mt-6 text-[14px] text-ink-soft">
+            Inscrição de {plural(participant.quotas, "cota", "cotas")} feita em {dateTime(participant.createdAt)}. Os números de todo mundo
+            aparecem depois que as apostas forem registradas.
+          </p>
+        </>
+      }
+    >
       <BackLink href="/">Início</BackLink>
-      <InkTitle size="lg" className="mt-3">MEU BILHETE</InkTitle>
+      <InkTitle size="lg" className="mt-3">
+        MEU BILHETE
+      </InkTitle>
 
       {/* O bilhete: um canhoto impresso, com picote. */}
       <article className="mt-6 rounded-md border-2 border-blue">
@@ -125,72 +199,6 @@ export default function Bilhete() {
           )}
         </div>
       </article>
-
-      <section className="mt-8">
-        <Label>Andamento</Label>
-        <ol className="mt-2">
-          {list.map((s) => (
-            <li key={s.title} className="flex items-center gap-3 border-t border-blue/40 py-3 first:border-t-0">
-              <span
-                aria-hidden="true"
-                className={cx(
-                  "relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
-                  !s.done && "border-2 border-blue/50",
-                )}
-              >
-                {s.done && (
-                  <>
-                    <span className="ink absolute inset-0 rounded-full bg-pink" />
-                    <Check size={18} weight="bold" className="relative text-ink" />
-                  </>
-                )}
-              </span>
-              <span className="flex min-w-0 flex-1 flex-col">
-                <span className="condensed text-[18px] font-extrabold uppercase leading-tight text-ink">
-                  {s.title}
-                  <span className="sr-only">{s.done ? " (feito)" : " (pendente)"}</span>
-                </span>
-                <span className="text-[15px] leading-snug text-ink-soft">{s.detail}</span>
-              </span>
-              {s.href && s.action && (
-                <Link
-                  href={s.href}
-                  className="condensed min-h-11 shrink-0 content-center px-1 text-[16px] font-extrabold uppercase text-blue-deep underline underline-offset-4"
-                >
-                  {s.action}
-                </Link>
-              )}
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      {participant.payment === "recusado" && participant.rejectReason && (
-        <p className="mt-4 rounded-md bg-pink/15 px-3 py-2.5 text-[15px] leading-snug text-ink">
-          <strong className="font-bold">Motivo da recusa:</strong> {participant.rejectReason}
-        </p>
-      )}
-
-      <section className="mt-8 flex items-start gap-3 rounded-md bg-paper-deep px-4 py-3.5">
-        <LinkSimple size={22} weight="bold" className="mt-0.5 shrink-0 text-blue-deep" aria-hidden="true" />
-        <div className="flex flex-col gap-2">
-          <p className="text-[15px] leading-snug text-ink">
-            Este link é o seu bilhete. Guarde para acompanhar, principalmente se trocar de celular.
-          </p>
-          <button
-            type="button"
-            onClick={copyLink}
-            className="condensed flex min-h-11 items-center gap-1.5 self-start text-[16px] font-extrabold uppercase text-blue-deep"
-          >
-            <Copy size={18} weight="bold" aria-hidden="true" /> Copiar link
-          </button>
-        </div>
-      </section>
-
-      <p className="mt-6 text-[14px] text-ink-soft">
-        Inscrição de {plural(participant.quotas, "cota", "cotas")} feita em {dateTime(participant.createdAt)}. Os números de todo mundo
-        aparecem depois que as apostas forem registradas.
-      </p>
     </Sheet>
   );
 }

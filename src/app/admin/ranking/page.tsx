@@ -15,8 +15,17 @@ export default function Ranking() {
   const voters = snapshot.participants.filter((p) => p.payment === "aprovado" && p.numbers.length === 6).length;
 
   return (
-    <AdminSheet title="RANKING">
-      <p className="mt-3 text-[16px] leading-snug text-ink-soft">
+    <AdminSheet
+      title="RANKING"
+      split="wide-left"
+      side={
+        <>
+          <Label className="mt-8 lg:mt-0">Do mais ao menos votado</Label>
+          <RankingList ranking={ranking} />
+        </>
+      }
+    >
+      <p className="mt-3 text-[16px] leading-snug text-ink-soft lg:mt-0">
         Votos de {voters} pessoas com Pix aprovado. Só você vê isto até as apostas serem registradas.
       </p>
       <div className="mt-4">
@@ -25,8 +34,6 @@ export default function Ranking() {
       <div className="mt-3">
         <HeatLegend />
       </div>
-      <Label className="mt-8">Do mais ao menos votado</Label>
-      <RankingList ranking={ranking} />
     </AdminSheet>
   );
 }

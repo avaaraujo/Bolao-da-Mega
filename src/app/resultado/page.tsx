@@ -19,7 +19,9 @@ export default function Resultado() {
     return (
       <Sheet>
         <BackLink href="/">Início</BackLink>
-        <InkTitle size="lg" className="mt-3">AINDA EM SEGREDO</InkTitle>
+        <InkTitle size="lg" className="mt-3">
+          AINDA EM SEGREDO
+        </InkTitle>
         <p className="mt-5 text-[18px] leading-snug text-ink">
           O ranking dos números e os jogos aparecem aqui assim que o Avá registrar as apostas na Caixa.
         </p>
@@ -36,7 +38,30 @@ export default function Resultado() {
   const myNumbers = participants.filter((p) => mine.includes(p.token)).flatMap((p) => p.numbers);
 
   return (
-    <Sheet>
+    <Sheet
+      side={
+        <>
+          <section className="lg:mt-0">
+            <GameList games={games} highlight={myNumbers} />
+          </section>
+
+          <section className="mt-9">
+            <Label>Mapa dos votos</Label>
+            <div className="mt-3">
+              <HeatGrid votes={votes} highlight={myNumbers} />
+            </div>
+            <div className="mt-3">
+              <HeatLegend />
+            </div>
+          </section>
+
+          <section className="mt-9">
+            <Label>Ranking</Label>
+            <RankingList ranking={ranking} />
+          </section>
+        </>
+      }
+    >
       <BackLink href="/">Início</BackLink>
       <InkTitle className="mt-1">BOLÃO DA MEGA</InkTitle>
       <Strip className="mt-3">
@@ -46,28 +71,10 @@ export default function Resultado() {
 
       <section className="mt-7">
         <Label aside={plural(games.length, "jogo", "jogos")}>Os jogos do grupo</Label>
-        {myNumbers.length > 0 && (
-          <p className="mt-1.5 text-[15px] text-ink-soft">Seus números aparecem carimbados de rosa.</p>
-        )}
+        {myNumbers.length > 0 && <p className="mt-1.5 text-[15px] text-ink-soft">Seus números aparecem carimbados de rosa.</p>}
         <div className="mt-3 mb-5">
           <CostBar games={games} total={totals.total} />
         </div>
-        <GameList games={games} highlight={myNumbers} />
-      </section>
-
-      <section className="mt-9">
-        <Label>Mapa dos votos</Label>
-        <div className="mt-3">
-          <HeatGrid votes={votes} highlight={myNumbers} />
-        </div>
-        <div className="mt-3">
-          <HeatLegend />
-        </div>
-      </section>
-
-      <section className="mt-9">
-        <Label>Ranking</Label>
-        <RankingList ranking={ranking} />
       </section>
     </Sheet>
   );

@@ -42,8 +42,46 @@ export default function EdicaoPage() {
   }
 
   return (
-    <AdminSheet title={`EDIÇÃO ${edition.year}`}>
-      <section className="mt-5">
+    <AdminSheet
+      title={`EDIÇÃO ${edition.year}`}
+      split="wide-right"
+      side={
+        <>
+          <section className="mt-8 flex flex-col gap-5 lg:mt-0">
+            <Label>Dados da edição</Label>
+            <Field label="Chave Pix" value={form.pixKey} onChange={(e) => set("pixKey", e.target.value)} />
+            <Field label="Nome que aparece no Pix" value={form.pixHolder} onChange={(e) => set("pixHolder", e.target.value)} />
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Prazo" type="date" value={form.deadline} onChange={(e) => set("deadline", e.target.value)} />
+              <Field label="Sorteio" type="date" value={form.drawDate} onChange={(e) => set("drawDate", e.target.value)} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Field
+                label="Cota (R$)"
+                type="number"
+                inputMode="numeric"
+                min={1}
+                value={form.quotaPrice}
+                onChange={(e) => set("quotaPrice", Math.max(1, Number(e.target.value) || 0))}
+              />
+              <Field
+                label="Aposta simples (R$)"
+                type="number"
+                inputMode="decimal"
+                min={1}
+                step="0.5"
+                value={form.betPrice}
+                onChange={(e) => set("betPrice", Math.max(0.5, Number(e.target.value) || 0))}
+              />
+            </div>
+            <Button onClick={save} disabled={!dirty} className="min-h-14">
+              Salvar edição
+            </Button>
+          </section>
+        </>
+      }
+    >
+      <section className="mt-5 lg:mt-0">
         <Label>Momento do bolão</Label>
         <ol className="mt-2.5 flex flex-col gap-2">
           {FLOW.map((s) => {
@@ -68,38 +106,6 @@ export default function EdicaoPage() {
             );
           })}
         </ol>
-      </section>
-
-      <section className="mt-8 flex flex-col gap-5">
-        <Label>Dados da edição</Label>
-        <Field label="Chave Pix" value={form.pixKey} onChange={(e) => set("pixKey", e.target.value)} />
-        <Field label="Nome que aparece no Pix" value={form.pixHolder} onChange={(e) => set("pixHolder", e.target.value)} />
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="Prazo" type="date" value={form.deadline} onChange={(e) => set("deadline", e.target.value)} />
-          <Field label="Sorteio" type="date" value={form.drawDate} onChange={(e) => set("drawDate", e.target.value)} />
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <Field
-            label="Cota (R$)"
-            type="number"
-            inputMode="numeric"
-            min={1}
-            value={form.quotaPrice}
-            onChange={(e) => set("quotaPrice", Math.max(1, Number(e.target.value) || 0))}
-          />
-          <Field
-            label="Aposta simples (R$)"
-            type="number"
-            inputMode="decimal"
-            min={1}
-            step="0.5"
-            value={form.betPrice}
-            onChange={(e) => set("betPrice", Math.max(0.5, Number(e.target.value) || 0))}
-          />
-        </div>
-        <Button onClick={save} disabled={!dirty} className="min-h-14">
-          Salvar edição
-        </Button>
       </section>
 
       <section className="mt-12 border-t-2 border-dashed border-ink/30 pt-5">

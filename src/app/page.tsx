@@ -43,9 +43,41 @@ export default function Home() {
     );
 
   return (
-    <Sheet bar={<ActionBar>{bar}</ActionBar>}>
+    <Sheet
+      bar={<ActionBar>{bar}</ActionBar>}
+      side={
+        <>
+          <section className="mt-8 lg:mt-0">
+            <Label>Como funciona</Label>
+            <ol className="mt-3 flex flex-col lg:mt-4">
+              {STEPS.map((s, i) => (
+                <li key={s.title} className="flex items-baseline gap-4 border-t border-blue/40 py-3 first:border-t-0 lg:gap-7 lg:py-6">
+                  <span className="display ink w-7 shrink-0 text-[34px] text-pink lg:w-14 lg:text-[76px]">{i + 1}</span>
+                  <span className="flex flex-col">
+                    <span className="condensed text-[20px] font-extrabold uppercase leading-tight text-ink lg:text-[30px]">{s.title}</span>
+                    <span className="text-[16px] leading-snug text-ink-soft lg:text-[19px]">{s.text}</span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </section>
+
+          <Strip className="mt-6 flex-col !items-start !gap-0.5 lg:mt-8">
+            <span>Inscrições até {dayMonth(edition.deadline)}</span>
+            <span className="font-medium text-ink">Os números de cada um ficam em segredo até as apostas serem feitas.</span>
+          </Strip>
+
+          <footer className="mt-10 flex items-center justify-between gap-4 text-[14px] text-ink-soft">
+            <span className="semi font-semibold">Modo demo: dados fictícios</span>
+            <Link href="/admin" className="semi font-bold text-blue-deep underline underline-offset-4">
+              Área do Avá
+            </Link>
+          </footer>
+        </>
+      }
+    >
       <InkTitle>BOLÃO DA MEGA</InkTitle>
-      <p className="semi mt-3 text-[18px] font-bold text-blue-deep">
+      <p className="semi mt-3 text-[18px] font-bold text-blue-deep lg:mt-5 lg:text-[22px]">
         Mega da Virada · {dayMonth(edition.drawDate)} · edição {edition.year}
       </p>
 
@@ -64,7 +96,7 @@ export default function Home() {
         </Link>
       ))}
 
-      <section className="mt-8">
+      <section className="mt-8 lg:mt-12">
         <Label aside={brlShort(totals.total)}>O pote até agora</Label>
         <p className="semi mt-1 mb-3 text-[16px] font-semibold text-ink-soft">
           {plural(totals.people, "pessoa", "pessoas")} · {plural(totals.quotas, "cota confirmada", "cotas confirmadas")}
@@ -78,33 +110,6 @@ export default function Home() {
           <p className="text-[16px] text-ink-soft">Os primeiros Pix confirmados aparecem aqui.</p>
         )}
       </section>
-
-      <section className="mt-8">
-        <Label>Como funciona</Label>
-        <ol className="mt-3 flex flex-col">
-          {STEPS.map((s, i) => (
-            <li key={s.title} className="flex items-baseline gap-4 border-t border-blue/40 py-3 first:border-t-0">
-              <span className="display w-7 shrink-0 text-[34px] text-pink ink">{i + 1}</span>
-              <span className="flex flex-col">
-                <span className="condensed text-[20px] font-extrabold uppercase leading-tight text-ink">{s.title}</span>
-                <span className="text-[16px] leading-snug text-ink-soft">{s.text}</span>
-              </span>
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      <Strip className="mt-6 flex-col !items-start !gap-0.5">
-        <span>Inscrições até {dayMonth(edition.deadline)}</span>
-        <span className="font-medium text-ink">Os números de cada um ficam em segredo até as apostas serem feitas.</span>
-      </Strip>
-
-      <footer className="mt-10 flex items-center justify-between gap-4 text-[14px] text-ink-soft">
-        <span className="semi font-semibold">Modo demo: dados fictícios</span>
-        <Link href="/admin" className="semi font-bold text-blue-deep underline underline-offset-4">
-          Área do Avá
-        </Link>
-      </footer>
     </Sheet>
   );
 }

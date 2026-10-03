@@ -43,6 +43,49 @@ export default function Entrar() {
   return (
     <form onSubmit={submit} className="contents">
       <Sheet
+        barIn="side"
+        side={
+          <>
+            <section className="mt-9 lg:mt-0">
+              <Label aside={`R$ ${edition.quotaPrice} cada`}>Quantas cotas?</Label>
+              <div className="mt-3 flex items-stretch overflow-hidden rounded-md border-2 border-blue">
+                <button
+                  type="button"
+                  aria-label="Menos uma cota"
+                  onClick={() => setQuotas((q) => Math.max(1, q - 1))}
+                  disabled={quotas <= 1}
+                  className="flex w-20 items-center justify-center text-blue-deep transition-colors hover:bg-paper-deep active:bg-yellow/50 disabled:text-blue/30"
+                >
+                  <Minus size={28} weight="bold" />
+                </button>
+                <output
+                  aria-live="polite"
+                  className="display flex flex-1 items-center justify-center border-x-2 border-blue py-3 text-[26cqi] leading-[0.8] text-ink"
+                >
+                  {quotas}
+                </output>
+                <button
+                  type="button"
+                  aria-label="Mais uma cota"
+                  onClick={() => setQuotas((q) => Math.min(MAX_QUOTAS, q + 1))}
+                  disabled={quotas >= MAX_QUOTAS}
+                  className="flex w-20 items-center justify-center text-blue-deep transition-colors hover:bg-paper-deep active:bg-yellow/50 disabled:text-blue/30"
+                >
+                  <Plus size={28} weight="bold" />
+                </button>
+              </div>
+              <div className="mt-4 flex items-baseline justify-between gap-3">
+                <span className="semi text-[17px] font-semibold text-ink-soft">Seu Pix</span>
+                <span className="display text-[13cqi] leading-none text-ink">{brlShort(total)}</span>
+              </div>
+              <p className="mt-2 text-[15px] leading-snug text-ink-soft">
+                {plural(quotas, "cota equivale", "cotas equivalem")} a{" "}
+                {plural(total / edition.betPrice, "aposta simples", "apostas simples")} da Mega. Você escolhe 6 números uma vez só, não
+                importa quantas cotas.
+              </p>
+            </section>
+          </>
+        }
         bar={
           <ActionBar note={open ? undefined : "As inscrições estão fechadas."}>
             <Button type="submit" disabled={busy || !open}>
@@ -52,7 +95,9 @@ export default function Entrar() {
         }
       >
         <BackLink href="/">Início</BackLink>
-        <InkTitle size="lg" className="mt-3">ENTRAR NO BOLÃO</InkTitle>
+        <InkTitle size="lg" className="mt-3">
+          ENTRAR NO BOLÃO
+        </InkTitle>
 
         <div className="mt-8 flex flex-col gap-5">
           <Field
@@ -72,44 +117,6 @@ export default function Entrar() {
             maxLength={80}
           />
         </div>
-
-        <section className="mt-9">
-          <Label aside={`R$ ${edition.quotaPrice} cada`}>Quantas cotas?</Label>
-          <div className="mt-3 flex items-stretch overflow-hidden rounded-md border-2 border-blue">
-            <button
-              type="button"
-              aria-label="Menos uma cota"
-              onClick={() => setQuotas((q) => Math.max(1, q - 1))}
-              disabled={quotas <= 1}
-              className="flex w-20 items-center justify-center text-blue-deep transition-colors hover:bg-paper-deep active:bg-yellow/50 disabled:text-blue/30"
-            >
-              <Minus size={28} weight="bold" />
-            </button>
-            <output
-              aria-live="polite"
-              className="display flex flex-1 items-center justify-center border-x-2 border-blue py-3 text-[26cqi] leading-[0.8] text-ink"
-            >
-              {quotas}
-            </output>
-            <button
-              type="button"
-              aria-label="Mais uma cota"
-              onClick={() => setQuotas((q) => Math.min(MAX_QUOTAS, q + 1))}
-              disabled={quotas >= MAX_QUOTAS}
-              className="flex w-20 items-center justify-center text-blue-deep transition-colors hover:bg-paper-deep active:bg-yellow/50 disabled:text-blue/30"
-            >
-              <Plus size={28} weight="bold" />
-            </button>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between gap-3">
-            <span className="semi text-[17px] font-semibold text-ink-soft">Seu Pix</span>
-            <span className="display text-[13cqi] leading-none text-ink">{brlShort(total)}</span>
-          </div>
-          <p className="mt-2 text-[15px] leading-snug text-ink-soft">
-            {plural(quotas, "cota equivale", "cotas equivalem")} a {plural(total / edition.betPrice, "aposta simples", "apostas simples")} da
-            Mega. Você escolhe 6 números uma vez só, não importa quantas cotas.
-          </p>
-        </section>
       </Sheet>
     </form>
   );
