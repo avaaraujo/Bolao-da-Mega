@@ -186,7 +186,7 @@ Quatro tintas de risografia sobre papel, cada uma com um papel fixo; nenhuma cor
 **Character:** Uma grotesca de cartaz espremida até o limite para os títulos, e a mesma família de texto puxada por largura (62/72/85/100) para dar a cada camada sua voz: display de valor, rótulo, dado, leitura. Todo número é tabular.
 
 ### Hierarchy
-- **Poster XL** (Anybody 900, wdth 50, 15cqi com auto-ajuste até 2.2×, 0.84): só o título BOLÃO DA MEGA DO AVÁ (em duas linhas na home e no resultado; numa linha no volante), de borda a borda, em duas passadas de tinta.
+- **Poster XL** (Anybody 900, wdth 50, 15cqi com auto-ajuste até 2.2×, 0.84): só o título BOLÃO DA MEGA, de borda a borda, em duas passadas de tinta.
 - **Poster** (Anybody 850, wdth 60, 12.5cqi ou 9cqi, 0.84, caixa-alta): títulos de tela (MEU BILHETE, PAGUE NO PIX, JOGOS); encolhe para caber numa linha, nunca quebra.
 - **Display** (Archivo 900, wdth 62, 0.86, caixa-alta, -0.01em): valores e nomes grandes: total do Pix (24cqi), contador de cotas (26cqi), nome no bilhete (11cqi), numerais de passos (34px, rosa).
 - **Label** (Archivo 800, wdth 72, 19px, caixa-alta, 0.01em, azul profundo): cabeçalhos de seção com contador opcional à direita; o mesmo corpo em 18px é o texto dos botões, em 16px os rótulos de campo e links de voltar, em 13px as abas.

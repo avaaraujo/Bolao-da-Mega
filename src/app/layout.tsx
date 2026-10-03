@@ -18,7 +18,7 @@ const anybody = Anybody({
 });
 
 export const metadata: Metadata = {
-  title: "Bolão da Mega do Avá",
+  title: "Bolão da Mega",
   description: "O bolão da Mega da Virada do Avá: cotas, Pix, comprovante e 6 números.",
 };
 

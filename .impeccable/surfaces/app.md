@@ -19,7 +19,7 @@ OWN-WORLD: Papel quase branco #FBFAF6, tintas riso rosa fluo #FF48B0, azul #0078
 
 STORY: O participante entende em um toque quanto deve, paga, manda o comprovante e marca 6 números como quem carimba um zine. O Avá vê quem pagou, a tinta acumulando no ranking e os jogos montados.
 
-FIRST VIEWPORT: Volante no celular. Título BOLÃO DA MEGA DO AVÁ enorme em rosa sobre azul deslocado no topo; uma faixa de status em fio azul; a grade 6×10 dominando a tela; a barra amarela fixa embaixo com CONFIRMAR MEUS NÚMEROS.
+FIRST VIEWPORT: Volante no celular. Título BOLÃO DA MEGA enorme em rosa sobre azul deslocado no topo; uma faixa de status em fio azul; a grade 6×10 dominando a tela; a barra amarela fixa embaixo com CONFIRMAR MEUS NÚMEROS.
 
 FORM: Riso / zine de festa de agência, item 6 da lista ordenada; seed 3d4c5adf. Elevações: mapa de calor só em 5 retículas fixas (10/30/50/70/100%); Recusar pagamento isolado e só em contorno até confirmar; na montagem, o comprimento de cada jogo é proporcional ao custo. Interação assinatura: tocar um número carimba a tinta rosa com leve deslocamento de registro.
 

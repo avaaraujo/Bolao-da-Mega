@@ -71,5 +71,5 @@ export function gamesAsText(games: Game[], year: number) {
   const lines = games.map(
     (g) => `Jogo ${g.index + 1} (${g.size} números, ${brlShort(g.cost)}): ${g.numbers.map(pad2).join(" ")}`,
   );
-  return [`Bolão da Mega do Avá ${year}`, ...lines].join("\n");
+  return [`Bolão da Mega ${year}`, ...lines].join("\n");
 }

@@ -68,7 +68,7 @@ export default function VolantePage() {
       <div className="flex items-center justify-between">
         <BackLink href={`/p/${token}`}>Meu bilhete</BackLink>
       </div>
-      <InkTitle className="mt-1">BOLÃO DA MEGA DO AVÁ</InkTitle>
+      <InkTitle className="mt-1">BOLÃO DA MEGA</InkTitle>
       <ParticipantStrip className="mt-3" p={participant} quotaPrice={snapshot.edition.quotaPrice} />
 
       <Label className="mt-5 mb-2.5" aside={`${selected.length}/${PICK}`}>

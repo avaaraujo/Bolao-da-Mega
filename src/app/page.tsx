@@ -44,7 +44,7 @@ export default function Home() {
 
   return (
     <Sheet bar={<ActionBar>{bar}</ActionBar>}>
-      <InkTitle>{"BOLÃO DA MEGA\nDO AVÁ"}</InkTitle>
+      <InkTitle>BOLÃO DA MEGA</InkTitle>
       <p className="semi mt-3 text-[18px] font-bold text-blue-deep">
         Mega da Virada · {dayMonth(edition.drawDate)} · edição {edition.year}
       </p>

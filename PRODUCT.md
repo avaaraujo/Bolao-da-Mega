@@ -43,7 +43,7 @@ Não é um bolão genérico: os jogos são montados pelo voto coletivo do grupo.
 
 ## Brand Commitments
 
-Nome: **Bolão da Mega do Avá** ("Avá" é o apelido do organizador; nos textos, sempre "o Avá", nunca "a organizadora"). Nenhum logo ou identidade existente.
+Nome: **Bolão da Mega**. O organizador é o Avá (apelido); nos textos, sempre "o Avá", nunca "a organizadora". Nenhum logo ou identidade existente.
 
 ## Evidence on Hand
 
