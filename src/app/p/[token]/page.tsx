@@ -192,7 +192,7 @@ export default function Bilhete() {
 
       {/* O bilhete: um canhoto impresso, com picote. */}
       {/* No desktop o canhoto senta no pé da capa, logo acima da ação. */}
-      <article className="mt-6 rounded-md border-2 border-blue lg:mt-auto">
+      <article data-anchor className="mt-6 rounded-md border-2 border-blue lg:mt-auto">
         <div className="flex items-start justify-between gap-3 px-4 pt-4">
           <div className="min-w-0">
             <p className="display line-clamp-2 text-[11cqi] [overflow-wrap:anywhere] text-ink">{participant.name}</p>

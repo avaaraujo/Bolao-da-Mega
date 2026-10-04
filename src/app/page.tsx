@@ -98,7 +98,7 @@ export default function Home() {
       ))}
 
       {/* No desktop o pote desce para o pé da capa, junto da ação. */}
-      <section className="mt-8 lg:mt-auto lg:pt-12">
+      <section data-anchor className="mt-8 lg:mt-auto lg:pt-12">
         <Label aside={brlShort(totals.total)}>O pote até agora</Label>
         <p className="semi mt-1 mb-3 text-[16px] font-semibold text-ink-soft">
           {plural(totals.people, "pessoa", "pessoas")} · {plural(totals.quotas, "cota confirmada", "cotas confirmadas")}
