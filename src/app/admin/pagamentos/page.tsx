@@ -5,7 +5,7 @@ import { CaretDown, FilePdf, ImageBroken } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import { AdminSheet } from "@/components/admin";
 import { useBolao } from "@/components/bolao-provider";
-import { Button, cx } from "@/components/riso";
+import { Button, collapse, cx, useReveal } from "@/components/riso";
 import { brlShort, dateTime, pad2, plural } from "@/lib/format";
 import type { Participant, PaymentStatus } from "@/lib/types";
 
@@ -26,8 +26,13 @@ export default function Pagamentos() {
   const list = participants
     .filter((p) => p.payment === filter)
     .sort((a, b) => (a.receipt?.uploadedAt ?? a.createdAt).localeCompare(b.receipt?.uploadedAt ?? b.createdAt));
-  // No desktop sempre há um selecionado: ao aprovar, a fila anda sozinha para o próximo.
+  // No desktop sempre há um selecionado. Ao decidir um Pix ele sai deste filtro,
+  // então a fila anda sozinha para o próximo (no celular, o próximo já abre).
   const selected = list.find((p) => p.id === open) ?? list[0] ?? null;
+  function advance(id: string) {
+    const i = list.findIndex((p) => p.id === id);
+    setOpen((list[i + 1] ?? list[i - 1])?.id ?? null);
+  }
 
   return (
     <AdminSheet
@@ -54,7 +59,7 @@ export default function Pagamentos() {
                   <span className="text-[15px] text-ink-soft">{plural(selected.quotas, "cota", "cotas")}</span>
                 </p>
               </div>
-              <PaymentDetail key={selected.id} p={selected} quotaPrice={edition.quotaPrice} />
+              <PaymentDetail key={selected.id} p={selected} quotaPrice={edition.quotaPrice} onDecided={advance} />
             </div>
           ) : (
             <p className="text-[17px] text-ink-soft">Nada para mostrar neste filtro.</p>
@@ -106,6 +111,7 @@ export default function Pagamentos() {
                 quotaPrice={edition.quotaPrice}
                 open={open === p.id}
                 selected={selected?.id === p.id}
+                onDecided={advance}
                 onToggle={() => setOpen((cur) => (cur === p.id && !isDesktop() ? null : p.id))}
               />
             ))}
@@ -149,12 +155,14 @@ function PaymentRow({
   quotaPrice,
   open,
   selected,
+  onDecided,
   onToggle,
 }: {
   p: Participant;
   quotaPrice: number;
   open: boolean;
   selected: boolean;
+  onDecided: (id: string) => void;
   onToggle: () => void;
 }) {
   return (
@@ -183,20 +191,34 @@ function PaymentRow({
           size={20}
           weight="bold"
           aria-hidden="true"
-          className={cx("shrink-0 text-blue-deep transition-transform lg:hidden", open && "rotate-180")}
+          className={cx("shrink-0 text-blue-deep transition-transform duration-300 ease-out-expo lg:hidden", open && "rotate-180")}
         />
       </button>
 
-      {open && (
-        <div className="pb-5 lg:hidden">
-          <PaymentDetail p={p} quotaPrice={quotaPrice} />
-        </div>
-      )}
+      {open && <RowDetail p={p} quotaPrice={quotaPrice} onDecided={onDecided} />}
     </li>
   );
 }
 
-function PaymentDetail({ p, quotaPrice }: { p: Participant; quotaPrice: number }) {
+/** O detalhe aberto dentro da linha, no celular: cresce no lugar, no mesmo tempo da seta. */
+function RowDetail({ p, quotaPrice, onDecided }: { p: Participant; quotaPrice: number; onDecided: (id: string) => void }) {
+  const ref = useReveal<HTMLDivElement>();
+  return (
+    <div ref={ref} className="lg:hidden">
+      <div className="pb-5">
+        <PaymentDetail p={p} quotaPrice={quotaPrice} onDecided={onDecided} />
+      </div>
+    </div>
+  );
+}
+
+const DONE: Partial<Record<PaymentStatus, string>> = {
+  aprovado: "Pix aprovado",
+  recusado: "Pix recusado",
+  em_analise: "de volta para conferir",
+};
+
+function PaymentDetail({ p, quotaPrice, onDecided }: { p: Participant; quotaPrice: number; onDecided: (id: string) => void }) {
   const { ds } = useBolao();
   const [rejecting, setRejecting] = useState(false);
   const [reason, setReason] = useState("");
@@ -204,12 +226,23 @@ function PaymentDetail({ p, quotaPrice }: { p: Participant; quotaPrice: number }
 
   async function set(status: PaymentStatus) {
     setBusy(true);
+    const before = { status: p.payment, reason: p.rejectReason ?? undefined };
+    // A linha sai da fila antes de sumir dos dados; se salvar falhar, ela volta.
+    const restore = await collapse(document.getElementById(`pix-${p.id}`));
     try {
       await ds.setPayment(p.id, status, reason);
-      toast.success(
-        status === "aprovado" ? `${p.name}: Pix aprovado.` : status === "recusado" ? `${p.name}: Pix recusado.` : "Status atualizado.",
-      );
+      onDecided(p.id);
+      toast.success(`${p.name}: ${DONE[status] ?? "status atualizado"}.`, {
+        duration: 6000,
+        action: {
+          label: "Desfazer",
+          onClick: () => {
+            ds.setPayment(p.id, before.status, before.reason).catch(() => toast.error("Não deu para desfazer. Mude o status na lista."));
+          },
+        },
+      });
     } catch (err) {
+      restore();
       toast.error(err instanceof Error ? err.message : "Não deu para salvar.");
     } finally {
       setBusy(false);
@@ -242,6 +275,13 @@ function PaymentDetail({ p, quotaPrice }: { p: Participant; quotaPrice: number }
         </Button>
       )}
 
+      {/* Corrigir uma decisão não pede motivo: o Pix só volta para a fila de conferência. */}
+      {(p.payment === "aprovado" || p.payment === "recusado") && p.receipt && !rejecting && (
+        <Button variant="outline" onClick={() => set("em_analise")} disabled={busy}>
+          Voltar para conferir
+        </Button>
+      )}
+
       {/* Recusar fica isolado, só em contorno, e pede confirmação com motivo. */}
       {p.payment !== "recusado" && p.receipt && (
         <div className="mt-4 flex flex-col gap-2 border-t border-dashed border-ink/30 pt-4">
@@ -268,7 +308,7 @@ function PaymentDetail({ p, quotaPrice }: { p: Participant; quotaPrice: number }
             </>
           ) : (
             <Button variant="danger" className="min-h-11 self-start text-[15px]" onClick={() => setRejecting(true)}>
-              {p.payment === "aprovado" ? "Desfazer e recusar" : "Recusar"}
+              Recusar
             </Button>
           )}
         </div>

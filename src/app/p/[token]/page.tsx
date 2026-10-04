@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Check, Copy, LinkSimple } from "@phosphor-icons/react";
 import { toast } from "sonner";
@@ -9,9 +10,22 @@ import { ActionBar, BackLink, ButtonLink, cx, InkTitle, Label, Loading, NumberCh
 import { brlShort, dateTime, dayMonth, pad2, plural } from "@/lib/format";
 import type { Participant } from "@/lib/types";
 
-type Step = { done: boolean; title: string; detail: string; href?: string; action?: string };
+type Step = { done: boolean; title: string; detail: string; href?: string; action?: string; justStamped?: boolean };
 
-function steps(p: Participant, token: string, editable: boolean): Step[] {
+// O fecho do voto: na chegada vinda do volante, os 6 números carimbam um a um e depois o passo ganha o visto.
+const STAMP_LEAD = 220;
+const STAMP_GAP = 90;
+const CHECK_DELAY = STAMP_LEAD + 5 * STAMP_GAP + 200;
+
+function readJustStamped(token: string) {
+  try {
+    return sessionStorage.getItem(`bolao:carimbo:${token}`) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function steps(p: Participant, token: string, editable: boolean, justStamped: boolean): Step[] {
   return [
     {
       done: p.payment !== "aguardando" && p.payment !== "recusado",
@@ -29,7 +43,10 @@ function steps(p: Participant, token: string, editable: boolean): Step[] {
       done: p.numbers.length === 6,
       title: "Seus 6 números",
       detail:
-        p.numbers.length === 6 ? (editable ? "Dá para trocar até fechar as inscrições." : "Números travados.") : "Ainda não marcados.",
+        p.numbers.length === 6
+          ? `${justStamped ? "Carimbados agora. " : ""}${editable ? "Dá para trocar até fechar as inscrições." : "Números travados."}`
+          : "Ainda não marcados.",
+      justStamped: justStamped && p.numbers.length === 6,
       href: `/p/${token}/volante`,
       action: p.numbers.length === 6 ? (editable ? "Trocar" : "Ver") : "Marcar",
     },
@@ -48,12 +65,20 @@ function steps(p: Participant, token: string, editable: boolean): Step[] {
 
 export default function Bilhete() {
   const { token, snapshot, participant } = useParticipant();
+  // Lido uma vez por chegada; a marca sai do sessionStorage para a próxima visita ficar parada.
+  const [justStamped] = useState(() => typeof window !== "undefined" && readJustStamped(token));
+  useEffect(() => {
+    try {
+      sessionStorage.removeItem(`bolao:carimbo:${token}`);
+    } catch {}
+  }, [token]);
+
   if (!snapshot) return <Loading />;
   if (!participant) return <NotFound />;
 
   const { edition } = snapshot;
   const editable = edition.status === "aberta";
-  const list = steps(participant, token, editable);
+  const list = steps(participant, token, editable, justStamped);
   const next = list.find((s) => !s.done && s.href);
 
   async function copyLink() {
@@ -89,9 +114,11 @@ export default function Bilhete() {
                 <li key={s.title} className="flex items-center gap-3 border-t border-blue/40 py-3 first:border-t-0">
                   <span
                     aria-hidden="true"
+                    style={s.justStamped ? ({ "--delay": `${CHECK_DELAY}ms` } as React.CSSProperties) : undefined}
                     className={cx(
                       "relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
                       !s.done && "border-2 border-blue/50",
+                      s.justStamped && "stamp stamp-in",
                     )}
                   >
                     {s.done && (
@@ -151,6 +178,11 @@ export default function Bilhete() {
       }
     >
       <BackLink href="/">Início</BackLink>
+      {justStamped && participant.numbers.length === 6 && (
+        <p role="status" className="sr-only">
+          Números carimbados no seu bilhete.
+        </p>
+      )}
       <InkTitle size="lg" className="mt-3">
         MEU BILHETE
       </InkTitle>
@@ -188,8 +220,8 @@ export default function Bilhete() {
         <div className="relative px-4 py-4">
           {participant.numbers.length === 6 ? (
             <div className="flex flex-wrap justify-between gap-1">
-              {participant.numbers.map((n) => (
-                <NumberChip key={n} n={n} size="lg" />
+              {participant.numbers.map((n, i) => (
+                <NumberChip key={n} n={n} size="lg" fresh={justStamped} delay={STAMP_LEAD + i * STAMP_GAP} />
               ))}
             </div>
           ) : (

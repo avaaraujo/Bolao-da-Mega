@@ -129,24 +129,37 @@ textarea {
 .screen-4 { background-image: radial-gradient(circle, var(--color-pink) 2.75px, transparent 3.1px); background-size: 6px 6px; }
 .screen-5 { background: var(--color-pink); }
 
-/* Carimbo: entra pressionando, com o registro deslocado. */
+/* Carimbo: entra pressionando, com o registro deslocado. Só anima quando é tinta nova
+   (stamp-in); carimbos que já estavam no papel aparecem pousados. */
 @keyframes stamp {
-  0% { transform: translate(var(--sx), var(--sy)) rotate(var(--sr)) scale(1.35); opacity: 0; }
+  0% { transform: translate(var(--sx, 0px), var(--sy, 0px)) rotate(var(--sr, 0deg)) scale(1.35); opacity: 0; }
   60% { opacity: 1; }
-  100% { transform: translate(var(--sx), var(--sy)) rotate(var(--sr)) scale(1); opacity: 1; }
+  100% { transform: translate(var(--sx, 0px), var(--sy, 0px)) rotate(var(--sr, 0deg)) scale(1); opacity: 1; }
+}
+
+/* Soltar um número: a tinta recua, mais rápido do que entrou. */
+@keyframes stamp-out {
+  to { transform: translate(var(--sx, 0px), var(--sy, 0px)) rotate(var(--sr, 0deg)) scale(0.86); opacity: 0; }
 }
 
 .stamp {
-  transform: translate(var(--sx), var(--sy)) rotate(var(--sr));
-  animation: stamp 260ms var(--ease-out-expo) both;
+  transform: translate(var(--sx, 0px), var(--sy, 0px)) rotate(var(--sr, 0deg));
 }
 
-@keyframes rise {
-  from { transform: translateY(10px); opacity: 0.001; }
-  to { transform: none; opacity: 1; }
+.stamp-in {
+  animation: stamp 260ms var(--ease-out-expo) var(--delay, 0ms) both;
+}
+
+.stamp-out {
+  animation: stamp-out 140ms cubic-bezier(0.7, 0, 0.84, 0) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .stamp { animation: none; }
-  *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; }
+  .stamp-in { animation: none; }
+  .stamp-out { animation: none; opacity: 0; }
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
 }

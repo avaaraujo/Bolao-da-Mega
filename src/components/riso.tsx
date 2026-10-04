@@ -141,18 +141,46 @@ function registration(n: number) {
   return { "--sx": `${sx * 0.6}px`, "--sy": `${sy * 0.6}px`, "--sr": `${sr}deg` } as React.CSSProperties;
 }
 
-export function Stamp({ n, className }: { n: number; className?: string }) {
+/** Disco de tinta rosa. `motion` diz se a tinta acabou de cair (in), está saindo (out) ou já estava no papel. */
+export function Stamp({
+  n,
+  motion,
+  delay,
+  className,
+}: {
+  n: number;
+  motion?: "in" | "out";
+  delay?: number;
+  className?: string;
+}) {
   return (
     <span
       aria-hidden="true"
-      style={registration(n)}
-      className={cx("stamp ink pointer-events-none absolute inset-0 m-auto aspect-square rounded-full bg-pink", className)}
+      style={{ ...registration(n), ...(delay ? { "--delay": `${delay}ms` } : null) } as React.CSSProperties}
+      className={cx(
+        "stamp ink pointer-events-none absolute inset-0 m-auto aspect-square rounded-full bg-pink",
+        motion === "in" && "stamp-in",
+        motion === "out" && "stamp-out",
+        className,
+      )}
     />
   );
 }
 
-/** Uma bolinha de número carimbada, para listas de números. */
-export function NumberChip({ n, size = "md", stamped = true }: { n: number; size?: "sm" | "md" | "lg"; stamped?: boolean }) {
+/** Uma bolinha de número carimbada, para listas de números. Só carimba com movimento quando `fresh`. */
+export function NumberChip({
+  n,
+  size = "md",
+  stamped = true,
+  fresh,
+  delay,
+}: {
+  n: number;
+  size?: "sm" | "md" | "lg";
+  stamped?: boolean;
+  fresh?: boolean;
+  delay?: number;
+}) {
   const box = {
     sm: "h-8 w-8 text-[15px]",
     md: "h-10 w-10 text-[18px]",
@@ -160,7 +188,7 @@ export function NumberChip({ n, size = "md", stamped = true }: { n: number; size
   }[size];
   return (
     <span className={cx("semi relative inline-flex items-center justify-center font-bold text-blue-deep", box)}>
-      {stamped && <Stamp n={n} className="h-full" />}
+      {stamped && <Stamp n={n} motion={fresh ? "in" : undefined} delay={delay} className="h-full" />}
       <span className="relative mix-blend-multiply">{pad2(n)}</span>
     </span>
   );
@@ -191,7 +219,7 @@ export function ButtonLink({ variant = "primary", className, ...props }: Compone
 export function ActionBar({ children, note }: { children: ReactNode; note?: ReactNode }) {
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 lg:static lg:mt-10">
-      <div className="mx-auto w-full max-w-[480px] bg-paper/95 px-[var(--gutter)] pt-3 pb-[max(14px,env(safe-area-inset-bottom))] backdrop-blur-[2px] lg:max-w-none lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
+      <div className="mx-auto w-full max-w-[480px] bg-paper/95 px-[var(--gutter)] pt-3 pb-[max(14px,env(safe-area-inset-bottom))] lg:max-w-none lg:bg-transparent lg:p-0">
         {note && <p className="semi mb-2 text-center text-[14px] font-semibold text-ink-soft">{note}</p>}
         <div className="flex flex-col gap-2 [&>*]:w-full [&>*]:min-h-14">{children}</div>
       </div>
@@ -227,8 +255,65 @@ export function Loading() {
   return (
     <Sheet>
       <div className="flex flex-1 items-center justify-center">
-        <p className="display animate-pulse text-[10cqi] text-blue">Imprimindo…</p>
+        <p className="display text-[10cqi] text-blue motion-safe:animate-pulse">Imprimindo…</p>
       </div>
     </Sheet>
   );
+}
+
+export function prefersReducedMotion() {
+  return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+/** Tremor curto de recusa (2–3px), para quando um toque não pode valer. Some com movimento reduzido. */
+export function nudge(el: Element | null | undefined) {
+  if (!el || prefersReducedMotion()) return;
+  el.animate(
+    [
+      { transform: "translateX(0)" },
+      { transform: "translateX(-3px)" },
+      { transform: "translateX(3px)" },
+      { transform: "translateX(-2px)" },
+      { transform: "translateX(0)" },
+    ],
+    { duration: 240, easing: "ease-out" },
+  );
+}
+
+/** Abre um painel crescendo da altura zero até a natural; depois devolve a altura ao fluxo normal. */
+export function useReveal<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el || prefersReducedMotion()) return;
+    const prev = el.style.overflow;
+    el.style.overflow = "hidden";
+    const anim = el.animate([{ height: "0px", opacity: 0 }, { height: `${el.scrollHeight}px`, opacity: 1 }], {
+      duration: 300,
+      easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+    });
+    const done = () => (el.style.overflow = prev);
+    anim.onfinish = done;
+    anim.oncancel = done;
+    return () => anim.cancel();
+  }, []);
+  return ref;
+}
+
+/** Recolhe um elemento (linha que sai de uma lista) antes de ele sumir dos dados. Resolve na hora com movimento reduzido. */
+export async function collapse(el: HTMLElement | null) {
+  if (!el || prefersReducedMotion() || !el.offsetParent) return () => {};
+  el.style.overflow = "hidden";
+  const anim = el.animate([{ height: `${el.offsetHeight}px`, opacity: 1 }, { height: "0px", opacity: 0 }], {
+    duration: 220,
+    easing: "cubic-bezier(0.7, 0, 0.84, 0)",
+    fill: "forwards",
+  });
+  // A ação nunca espera a animação além do previsto (aba em segundo plano congela a linha do tempo).
+  await Promise.race([anim.finished.catch(() => {}), new Promise((r) => setTimeout(r, 260))]);
+  // Se a ação falhar, quem chamou devolve a linha.
+  return () => {
+    anim.cancel();
+    el.style.overflow = "";
+  };
 }

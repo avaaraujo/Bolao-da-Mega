@@ -259,7 +259,11 @@ Blocos de tinta chapada, caixa-alta condensada, firmes ao toque.
 - **Filtros segmentados:** grade em fio azul de 2px; segmento ativo em amarelo.
 
 ### Volante (assinatura)
-Grade 6×10 com fios azuis de 2px (o fundo azul aparece entre células de papel). Algarismos azul profundo; tocar carimba um disco rosa (78% da célula) que entra em 260ms com ease-out-expo, crescendo de 1.35× com o registro deslocado e estável por número. Hover em papel fundo; pressão em amarelo a 40%.
+Grade 6×10 com fios azuis de 2px (o fundo azul aparece entre células de papel). Algarismos azul profundo; tocar carimba um disco rosa (78% da célula) que entra em 260ms com ease-out-expo, crescendo de 1.35× com o registro deslocado e estável por número. Hover em papel fundo; pressão em amarelo a 40%. Só tinta nova anima: números que já estavam carimbados aparecem pousados em toda visita. Soltar um número faz a tinta recuar em 140ms (ease-in, escala 0.86); um 7º toque não carimba, e a célula e o contador "6/6" tremem 3px por 240ms.
+
+**Fecho do voto (momento focal).** Ao confirmar, o bilhete abre e os 6 chips carimbam em sequência (220ms de espera, 90ms entre cada, 260ms cada); depois o visto rosa de "Seus 6 números" pousa. Acontece só na chegada vinda do volante (marca em sessionStorage); nas visitas seguintes o bilhete fica parado. Substitui o toast.
+
+**Fila de Pix.** Decidir um Pix recolhe a linha (220ms, ease-in) e abre o próximo; o toast traz "Desfazer" por 6s. O detalhe da linha no celular cresce da altura zero em 300ms ease-out-expo, no tempo da seta.
 
 ### Mapa de Calor
 A mesma grade do volante, com cada célula preenchida por uma das 5 retículas rosa; o algarismo fica sobre uma etiqueta de papel a 85% e a contagem num selo de 11px no canto (tracejado azul quando zero). Os números destacados ganham sublinhado de 3px.
@@ -278,6 +282,7 @@ Moldura azul de 3px de canto com uma faixa por jogo, largura proporcional ao cus
 - **Do** representar intensidade só com as 5 retículas fixas.
 - **Do** manter ações destrutivas em contorno preto, isoladas, e confirmar com o bloco preto.
 - **Do** respeitar `prefers-reduced-motion`: carimbos aparecem sem animação.
+- **Do** animar só o que acabou de acontecer: o carimbo nunca se repete por montagem de tela.
 
 ### Don't:
 - **Don't** usar rosa ou amarelo para texto pequeno.

@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, SealCheck } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import { NotFound } from "@/components/not-found";
 import { ParticipantStrip, useParticipant } from "@/components/participant";
-import { ActionBar, BackLink, Button, ButtonLink, InkTitle, Label, Loading, NumberChip, Sheet } from "@/components/riso";
+import { ActionBar, BackLink, Button, ButtonLink, InkTitle, Label, Loading, nudge, NumberChip, Sheet } from "@/components/riso";
 import { dayMonth } from "@/lib/format";
 import { Volante } from "@/components/volante";
 import { PICK } from "@/lib/rules";
@@ -16,6 +16,9 @@ export default function VolantePage() {
   const router = useRouter();
   const [picked, setPicked] = useState<number[] | null>(null);
   const [busy, setBusy] = useState(false);
+  // Números carimbados nesta visita: só eles entram com movimento.
+  const [fresh, setFresh] = useState<ReadonlySet<number>>(() => new Set());
+  const counter = useRef<HTMLSpanElement>(null);
 
   if (!snapshot) return <Loading />;
   if (!participant) return <NotFound />;
@@ -25,19 +28,28 @@ export default function VolantePage() {
   const unchanged = picked === null || picked.join() === participant.numbers.join();
 
   function toggle(n: number) {
-    if (selected.includes(n)) return setPicked(selected.filter((x) => x !== n));
-    if (selected.length >= PICK) {
-      toast("Já são 6. Toque num número carimbado para soltar e trocar.", { id: "limite" });
-      return;
+    if (selected.includes(n)) {
+      setPicked(selected.filter((x) => x !== n));
+      return true;
     }
+    if (selected.length >= PICK) {
+      nudge(counter.current);
+      toast("Já são 6. Toque num número carimbado para soltar e trocar.", { id: "limite" });
+      return false;
+    }
+    setFresh((f) => new Set(f).add(n));
     setPicked([...selected, n]);
+    return true;
   }
 
   async function confirm() {
     setBusy(true);
     try {
       await ds.setNumbers(token, selected);
-      toast.success("Números carimbados.");
+      // O fecho do voto acontece no bilhete: os 6 números carimbam em sequência na chegada.
+      try {
+        sessionStorage.setItem(`bolao:carimbo:${token}`, "1");
+      } catch {}
       router.push(`/p/${token}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Não deu para salvar. Tente de novo.");
@@ -52,10 +64,17 @@ export default function VolantePage() {
     <Sheet
       side={
         <>
-          <Label className="mt-5 mb-2.5 lg:mt-0" aside={`${selected.length}/${PICK}`}>
+          <Label
+            className="mt-5 mb-2.5 lg:mt-0"
+            aside={
+              <span ref={counter} className="inline-block">
+                {selected.length}/{PICK}
+              </span>
+            }
+          >
             {editable ? "Escolha seus 6 números" : "Seus números"}
           </Label>
-          <Volante selected={selected} onToggle={toggle} disabled={!editable} />
+          <Volante selected={selected} fresh={fresh} onToggle={toggle} disabled={!editable} />
           {!editable && <p className="mt-3 text-[15px] text-ink-soft">As inscrições fecharam, então os números não mudam mais.</p>}
         </>
       }
@@ -88,7 +107,7 @@ export default function VolantePage() {
         <div className="mt-4 grid grid-cols-6 gap-2">
           {Array.from({ length: PICK }, (_, k) => [...selected].sort((a, b) => a - b)[k]).map((n, k) =>
             n ? (
-              <NumberChip key={n} n={n} size="lg" />
+              <NumberChip key={n} n={n} size="lg" fresh={fresh.has(n)} />
             ) : (
               <span
                 key={`vazio-${k}`}
