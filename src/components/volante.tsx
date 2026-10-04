@@ -1,8 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { heatLevel, NUMBERS } from "@/lib/rules";
 import { pad2 } from "@/lib/format";
-import { cx, Stamp } from "./riso";
+import { cx, nudge, Stamp } from "./riso";
 
 const ALL = Array.from({ length: NUMBERS }, (_, i) => i + 1);
 
@@ -16,12 +17,38 @@ function Frame({ children, label }: { children: React.ReactNode; label: string }
   );
 }
 
-/** Volante para marcar 6 números: cada toque carimba tinta rosa sobre o número azul. */
-export function Volante({ selected, onToggle, disabled }: { selected: number[]; onToggle: (n: number) => void; disabled?: boolean }) {
+/**
+ * Volante para marcar 6 números: cada toque carimba tinta rosa sobre o número azul.
+ * `fresh` são os números carimbados nesta visita (só esses animam); `onToggle` devolve false quando o toque não vale.
+ */
+export function Volante({
+  selected,
+  fresh,
+  onToggle,
+  disabled,
+}: {
+  selected: number[];
+  fresh?: ReadonlySet<number>;
+  onToggle: (n: number) => boolean | void;
+  disabled?: boolean;
+}) {
+  // Números recém-soltos continuam no papel o tempo da tinta recuar.
+  const [leaving, setLeaving] = useState<number[]>([]);
+
+  function press(n: number, cell: HTMLElement) {
+    const wasOn = selected.includes(n);
+    if (onToggle(n) === false) return nudge(cell);
+    if (wasOn) {
+      setLeaving((l) => [...l, n]);
+      setTimeout(() => setLeaving((l) => l.filter((x) => x !== n)), 160);
+    }
+  }
+
   return (
     <Frame label="Volante de 1 a 60">
       {ALL.map((n) => {
         const on = selected.includes(n);
+        const out = !on && leaving.includes(n);
         return (
           <button
             key={n}
@@ -29,7 +56,7 @@ export function Volante({ selected, onToggle, disabled }: { selected: number[]; 
             aria-pressed={on}
             aria-label={`Número ${n}`}
             disabled={disabled}
-            onClick={() => onToggle(n)}
+            onClick={(e) => press(n, e.currentTarget)}
             className={cx(
               "semi relative flex items-center justify-center bg-paper text-[clamp(22px,7.4cqi,40px)] font-bold text-blue-deep transition-colors",
               rowHeight,
@@ -37,7 +64,7 @@ export function Volante({ selected, onToggle, disabled }: { selected: number[]; 
             )}
           >
             <span className="relative">{pad2(n)}</span>
-            {on && <Stamp n={n} className="h-[78%]" />}
+            {(on || out) && <Stamp n={n} motion={out ? "out" : fresh?.has(n) ? "in" : undefined} className="h-[78%]" />}
           </button>
         );
       })}
