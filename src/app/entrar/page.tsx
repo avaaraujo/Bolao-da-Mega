@@ -44,6 +44,7 @@ export default function Entrar() {
     <form onSubmit={submit} className="contents">
       <Sheet
         barIn="side"
+        split="even"
         side={
           <>
             <section className="mt-9 lg:mt-0">
@@ -95,8 +96,8 @@ export default function Entrar() {
         }
       >
         <BackLink href="/">Início</BackLink>
-        <InkTitle size="lg" className="mt-3">
-          ENTRAR NO BOLÃO
+        <InkTitle size="lg" stack className="mt-3">
+          {"ENTRAR\nNO BOLÃO"}
         </InkTitle>
 
         <div className="mt-8 flex flex-col gap-5">

@@ -10,14 +10,17 @@ export function cx(...c: (string | false | null | undefined)[]) {
 }
 
 /**
- * Folha do zine. No celular, uma coluna. No desktop vira página dupla:
+ * Folha do zine. No celular, uma coluna. No desktop vira página dupla do tamanho da tela:
  * a "capa" (children + ação) fica fixa à esquerda e o trabalho (side) corre à direita.
+ * As duas páginas dividem uma linha de cima (títulos) e uma linha de baixo (ação, valor, rodapé):
+ * o que deve sentar no pé da página usa `lg:mt-auto`.
  */
 export function Sheet({
   children,
   side,
   bar,
   barIn = "cover",
+  split = "work",
   className,
 }: {
   children: ReactNode;
@@ -25,24 +28,36 @@ export function Sheet({
   bar?: ReactNode;
   /** No desktop, em qual coluna a ação principal fica: junto da capa ou no fim do trabalho. */
   barIn?: "cover" | "side";
+  /** work: a página do trabalho é a maior (volante, resultado); even: capa e trabalho pesam igual. */
+  split?: "work" | "even";
   className?: string;
 }) {
   return (
-    <div className={cx("mx-auto flex min-h-dvh w-full max-w-[480px] flex-col", side ? "lg:max-w-[1200px]" : "lg:max-w-[600px]")}>
+    <div className={cx("mx-auto flex min-h-dvh w-full max-w-[480px] flex-col", side ? "lg:max-w-[1280px]" : "lg:max-w-[600px]")}>
       <main
         className={cx(
-          "flex flex-1 flex-col px-[var(--gutter)] pt-[max(20px,env(safe-area-inset-top))] lg:px-12 lg:pt-14",
-          bar ? "pb-32 lg:pb-16" : "pb-10 lg:pb-16",
-          !!side && "lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:content-start lg:items-start lg:gap-x-[clamp(48px,6vw,96px)]",
+          "flex flex-1 flex-col px-[var(--gutter)] pt-[max(20px,env(safe-area-inset-top))] lg:px-12",
+          bar ? "pb-32" : "pb-10",
+          side
+            ? cx(
+                "lg:grid lg:py-0 lg:gap-x-[clamp(48px,6vw,96px)]",
+                split === "even" ? "lg:grid-cols-2" : "lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]",
+              )
+            : "lg:pt-14 lg:pb-16",
           className,
         )}
       >
-        <div className={cx("flex flex-col [container-type:inline-size]", side ? "lg:sticky lg:top-14" : "flex-1")}>
+        <div
+          className={cx(
+            "flex flex-col [container-type:inline-size]",
+            side ? "lg:sticky lg:top-0 lg:min-h-dvh lg:self-start lg:py-14" : "flex-1",
+          )}
+        >
           {children}
           {(!side || barIn === "cover") && bar}
         </div>
         {side && (
-          <div className="flex flex-col [container-type:inline-size] lg:pt-1">
+          <div className="flex flex-col [container-type:inline-size] lg:min-h-dvh lg:py-14">
             {side}
             {barIn === "side" && bar}
           </div>
@@ -53,16 +68,20 @@ export function Sheet({
 }
 
 /** Título em duas passadas de tinta: azul por baixo, rosa por cima, registro deslocado.
- * Uma quebra de linha no texto vira uma nova linha; o encaixe usa a linha mais larga. */
+ * Uma quebra de linha no texto vira uma nova linha; o encaixe usa a linha mais larga.
+ * Com `stack`, a quebra só vale no desktop: no celular o título segue numa linha só e,
+ * na capa larga, empilha como cartaz. */
 export function InkTitle({
   children,
   size = "xl",
   as: Tag = "h1",
+  stack,
   className,
 }: {
   children: string;
   size?: "xl" | "lg" | "md";
   as?: "h1" | "h2" | "p";
+  stack?: boolean;
   className?: string;
 }) {
   const font = { xl: "text-[15cqi]", lg: "text-[12.5cqi]", md: "text-[9cqi]" }[size];
@@ -78,25 +97,37 @@ export function InkTitle({
       const base = parseFloat(getComputedStyle(el).fontSize);
       const text = el.lastElementChild as HTMLElement | null;
       const scale = el.clientWidth / (text?.getBoundingClientRect().width || el.scrollWidth);
-      const next = size === "xl" ? Math.min(scale, 2.2) : Math.min(scale, 1);
-      if (Math.abs(next - 1) > 0.005) el.style.fontSize = `${Math.floor(base * next * 0.985 * 10) / 10}px`;
+      // Empilhado na capa do desktop, o título vira cartaz: cresce até a largura da coluna,
+      // mas nunca passa de um terço da altura da tela.
+      const stacked = stack && window.matchMedia("(min-width: 1024px)").matches;
+      const next = Math.min(scale, stacked ? (size === "xl" ? 3.4 : 2.2) : size === "xl" ? 2.2 : 1);
+      let px = base * next * 0.985;
+      if (stacked) px = Math.min(px, (window.innerHeight * 0.34) / (children.split("\n").length * 0.84));
+      if (Math.abs(px / base - 1) > 0.005) el.style.fontSize = `${Math.floor(px * 10) / 10}px`;
     };
     fit();
     document.fonts?.ready.then(fit);
     const ro = new ResizeObserver(fit);
     ro.observe(el.parentElement ?? el);
-    return () => ro.disconnect();
-  }, [children, size]);
+    if (stack) window.addEventListener("resize", fit);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", fit);
+    };
+  }, [children, size, stack]);
 
   return (
     <Tag
       ref={ref}
       className={cx("poster relative whitespace-nowrap pr-[0.04em] pb-[0.04em]", size === "xl" && "poster-xl", font, className)}
     >
-      <span aria-hidden="true" className="ink-title absolute top-[0.045em] left-[0.04em] inline-block whitespace-pre text-blue">
+      <span
+        aria-hidden="true"
+        className={cx("ink-title absolute top-[0.045em] left-[0.04em] inline-block text-blue", stack ? "whitespace-nowrap lg:whitespace-pre" : "whitespace-pre")}
+      >
         {children}
       </span>
-      <span className="ink-top relative inline-block whitespace-pre text-pink">{children}</span>
+      <span className={cx("ink-top relative inline-block text-pink", stack ? "whitespace-nowrap lg:whitespace-pre" : "whitespace-pre")}>{children}</span>
     </Tag>
   );
 }
@@ -184,7 +215,7 @@ export function NumberChip({
   const box = {
     sm: "h-8 w-8 text-[15px]",
     md: "h-10 w-10 text-[18px]",
-    lg: "h-[13.5cqi] w-[13.5cqi] max-h-16 max-w-16 text-[clamp(20px,6.4cqi,28px)]",
+    lg: "h-[13.5cqi] w-[13.5cqi] max-h-16 max-w-16 text-[clamp(20px,6.4cqi,28px)] lg:max-h-20 lg:max-w-20 lg:text-[clamp(20px,6.4cqi,34px)]",
   }[size];
   return (
     <span className={cx("semi relative inline-flex items-center justify-center font-bold text-blue-deep", box)}>
@@ -218,7 +249,7 @@ export function ButtonLink({ variant = "primary", className, ...props }: Compone
 /** Barra fixa no rodapé com a ação principal da tela. */
 export function ActionBar({ children, note }: { children: ReactNode; note?: ReactNode }) {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 lg:static lg:mt-10">
+    <div className="fixed inset-x-0 bottom-0 z-40 lg:static lg:mt-auto lg:pt-10">
       <div className="mx-auto w-full max-w-[480px] bg-paper/95 px-[var(--gutter)] pt-3 pb-[max(14px,env(safe-area-inset-bottom))] lg:max-w-none lg:bg-transparent lg:p-0">
         {note && <p className="semi mb-2 text-center text-[14px] font-semibold text-ink-soft">{note}</p>}
         <div className="flex flex-col gap-2 [&>*]:w-full [&>*]:min-h-14">{children}</div>

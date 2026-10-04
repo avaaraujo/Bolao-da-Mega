@@ -104,6 +104,7 @@ export default function Bilhete() {
 
   return (
     <Sheet
+      split="even"
       bar={bar ? <ActionBar>{bar}</ActionBar> : undefined}
       side={
         <>
@@ -154,26 +155,28 @@ export default function Bilhete() {
             </p>
           )}
 
-          <section className="mt-8 flex items-start gap-3 rounded-md bg-paper-deep px-4 py-3.5">
-            <LinkSimple size={22} weight="bold" className="mt-0.5 shrink-0 text-blue-deep" aria-hidden="true" />
-            <div className="flex flex-col gap-2">
-              <p className="text-[15px] leading-snug text-ink">
-                Este link é o seu bilhete. Guarde para acompanhar, principalmente se trocar de celular.
-              </p>
-              <button
-                type="button"
-                onClick={copyLink}
-                className="condensed flex min-h-11 items-center gap-1.5 self-start text-[16px] font-extrabold uppercase text-blue-deep"
-              >
-                <Copy size={18} weight="bold" aria-hidden="true" /> Copiar link
-              </button>
-            </div>
-          </section>
+          <div className="lg:mt-auto lg:pt-10">
+            <section className="mt-8 flex items-start gap-3 rounded-md bg-paper-deep px-4 py-3.5 lg:mt-0">
+              <LinkSimple size={22} weight="bold" className="mt-0.5 shrink-0 text-blue-deep" aria-hidden="true" />
+              <div className="flex flex-col gap-2">
+                <p className="text-[15px] leading-snug text-ink">
+                  Este link é o seu bilhete. Guarde para acompanhar, principalmente se trocar de celular.
+                </p>
+                <button
+                  type="button"
+                  onClick={copyLink}
+                  className="condensed flex min-h-11 items-center gap-1.5 self-start text-[16px] font-extrabold uppercase text-blue-deep"
+                >
+                  <Copy size={18} weight="bold" aria-hidden="true" /> Copiar link
+                </button>
+              </div>
+            </section>
 
-          <p className="mt-6 text-[14px] text-ink-soft">
-            Inscrição de {plural(participant.quotas, "cota", "cotas")} feita em {dateTime(participant.createdAt)}. Os números de todo mundo
-            aparecem depois que as apostas forem registradas.
-          </p>
+            <p className="mt-6 text-[14px] text-ink-soft">
+              Inscrição de {plural(participant.quotas, "cota", "cotas")} feita em {dateTime(participant.createdAt)}. Os números de todo mundo
+              aparecem depois que as apostas forem registradas.
+            </p>
+          </div>
         </>
       }
     >
@@ -183,15 +186,16 @@ export default function Bilhete() {
           Números carimbados no seu bilhete.
         </p>
       )}
-      <InkTitle size="lg" className="mt-3">
-        MEU BILHETE
+      <InkTitle size="lg" stack className="mt-3">
+        {"MEU\nBILHETE"}
       </InkTitle>
 
       {/* O bilhete: um canhoto impresso, com picote. */}
-      <article className="mt-6 rounded-md border-2 border-blue">
+      {/* No desktop o canhoto senta no pé da capa, logo acima da ação. */}
+      <article className="mt-6 rounded-md border-2 border-blue lg:mt-auto">
         <div className="flex items-start justify-between gap-3 px-4 pt-4">
           <div className="min-w-0">
-            <p className="display truncate text-[11cqi] text-ink">{participant.name}</p>
+            <p className="display line-clamp-2 text-[11cqi] [overflow-wrap:anywhere] text-ink">{participant.name}</p>
           </div>
           <span
             className={cx(

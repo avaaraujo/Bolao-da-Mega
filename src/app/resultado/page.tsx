@@ -63,8 +63,10 @@ export default function Resultado() {
       }
     >
       <BackLink href="/">Início</BackLink>
-      <InkTitle className="mt-1">BOLÃO DA MEGA</InkTitle>
-      <Strip className="mt-3">
+      <InkTitle stack className="mt-1">
+        {"BOLÃO\nDA MEGA"}
+      </InkTitle>
+      <Strip className="mt-3 lg:mt-auto">
         Apostas feitas <Dot /> {brlShort(totals.total)} <Dot /> {plural(totals.people, "pessoa", "pessoas")} <Dot /> sorteio{" "}
         {dayMonth(edition.drawDate)}
       </Strip>

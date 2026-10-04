@@ -44,6 +44,7 @@ export default function Home() {
 
   return (
     <Sheet
+      split="even"
       bar={<ActionBar>{bar}</ActionBar>}
       side={
         <>
@@ -67,7 +68,7 @@ export default function Home() {
             <span className="font-medium text-ink">Os números de cada um ficam em segredo até as apostas serem feitas.</span>
           </Strip>
 
-          <footer className="mt-10 flex items-center justify-between gap-4 text-[14px] text-ink-soft">
+          <footer className="mt-10 flex lg:mt-auto lg:pt-10 items-center justify-between gap-4 text-[14px] text-ink-soft">
             <span className="semi font-semibold">Modo demo: dados fictícios</span>
             <Link href="/admin" className="semi font-bold text-blue-deep underline underline-offset-4">
               Área do Avá
@@ -76,7 +77,7 @@ export default function Home() {
         </>
       }
     >
-      <InkTitle>BOLÃO DA MEGA</InkTitle>
+      <InkTitle stack>{"BOLÃO\nDA MEGA"}</InkTitle>
       <p className="semi mt-3 text-[18px] font-bold text-blue-deep lg:mt-5 lg:text-[22px]">
         Mega da Virada · {dayMonth(edition.drawDate)} · edição {edition.year}
       </p>
@@ -96,7 +97,8 @@ export default function Home() {
         </Link>
       ))}
 
-      <section className="mt-8 lg:mt-12">
+      {/* No desktop o pote desce para o pé da capa, junto da ação. */}
+      <section className="mt-8 lg:mt-auto lg:pt-12">
         <Label aside={brlShort(totals.total)}>O pote até agora</Label>
         <p className="semi mt-1 mb-3 text-[16px] font-semibold text-ink-soft">
           {plural(totals.people, "pessoa", "pessoas")} · {plural(totals.quotas, "cota confirmada", "cotas confirmadas")}

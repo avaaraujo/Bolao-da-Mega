@@ -70,6 +70,7 @@ export default function Pagamento() {
   return (
     <Sheet
       barIn="side"
+      split="even"
       side={
         <>
           <section className="mt-6 lg:mt-0">
@@ -175,11 +176,12 @@ export default function Pagamento() {
       }
     >
       <BackLink href={`/p/${token}`}>Meu bilhete</BackLink>
-      <InkTitle size="lg" className="mt-3">
-        PAGUE NO PIX
+      <InkTitle size="lg" stack className="mt-3">
+        {"PAGUE\nNO PIX"}
       </InkTitle>
 
-      <section className="mt-7 border-b-2 border-blue pb-5">
+      {/* No desktop o valor senta no pé da capa, na mesma linha do botão de enviar. */}
+      <section className="mt-7 border-b-2 border-blue pb-5 lg:mt-auto lg:pt-10">
         <p className="semi text-[17px] font-semibold text-ink-soft">
           {plural(participant.quotas, "cota", "cotas")} × {brl(edition.quotaPrice)}
         </p>
