@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Anybody, Archivo } from "next/font/google";
 import { Toaster } from "sonner";
 import { BolaoProvider } from "@/components/bolao-provider";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const archivo = Archivo({
@@ -17,14 +18,12 @@ const anybody = Anybody({
   variable: "--font-anybody",
 });
 
-const description = "O bolão da Mega da Virada do Avá: cotas, Pix, comprovante e 6 números.";
+const description = SITE_DESCRIPTION;
 
 export const metadata: Metadata = {
-  // Base das URLs absolutas da imagem de compartilhamento; na Vercel, a URL de produção.
-  metadataBase: new URL(
-    process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "http://localhost:3077",
-  ),
-  title: "Bolão da Mega",
+  // Base das URLs absolutas (canonical, imagem de compartilhamento).
+  metadataBase: new URL(SITE_URL),
+  title: { default: SITE_NAME, template: `%s · ${SITE_NAME}` },
   description,
   openGraph: {
     title: "Bolão da Mega",

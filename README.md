@@ -31,3 +31,10 @@ As telas não mudam: só a fonte de dados.
 - `src/lib/data/`: interface de dados, mock (localStorage), seed e stub do Supabase.
 - `src/components/riso.tsx`, `volante.tsx`, `jogos.tsx`: o sistema visual riso.
 - `src/app/`: telas do participante (`/`, `/entrar`, `/p/[token]`…) e do Avá (`/admin/*`).
+
+## Para agentes de IA
+
+- `Accept: text/markdown` em qualquer página pública devolve Markdown (`src/proxy.ts`, `src/lib/agent/`); caminhos inexistentes dão 404 também em Markdown.
+- `/llms.txt`, `/sitemap.xml`, `/robots.txt`, JSON-LD na home e páginas `/about`, `/contact`, `/privacy`, `/developers`.
+- Servidor MCP público e somente leitura (Streamable HTTP) em `/mcp` e `/.well-known/mcp`: `get_bolao_info`, `calculate_game_plan`, `calculate_game_cost`.
+- Contato público opcional (entra na página de contato e no JSON-LD só se definido): `NEXT_PUBLIC_CONTACT_EMAIL`, `NEXT_PUBLIC_ADDRESS_LOCALITY`, `NEXT_PUBLIC_ADDRESS_COUNTRY` (+ `_STREET`, `_REGION`, `_POSTAL_CODE`).
