@@ -271,6 +271,10 @@ A mesma grade do volante, com cada célula preenchida por uma das 5 retículas r
 ### Barra de Custo
 Moldura azul de 3px de canto com uma faixa por jogo, largura proporcional ao custo, alternando azul, rosa e amarelo com falhas de tinta. Onde dois jogos grandes (≥4% do total) se encontram, a faixa seguinte invade a anterior 7px e desce 1.5px: a sobreposição imprime a terceira cor.
 
+### Ícone e imagem de compartilhamento
+- **Favicon (`app/icon.svg`) e ícone do iPhone (`app/apple-icon.tsx`):** uma célula do volante carimbada: papel, fio azul e o disco rosa levemente fora de registro. Sem texto, legível em 16px.
+- **Imagem de OG (`app/opengraph-image.tsx`, 1200×630):** o título-cartaz BOLÃO / DA MEGA em duas passadas (azul deslocado por baixo, rosa por cima) e o volante 1–60 inclinado −4°, sangrando pela borda, com os números carimbados no registro do app. Falhas de tinta são pontos cor de papel por cima de tudo, porque o gerador não tem máscara nem multiply. Fontes em TTF estático em `app/_og/` (Anybody 900 largura 50; Archivo 800 largura 72 e 600 largura 85).
+
 ## Do's and Don'ts
 
 ### Do:
