@@ -13,7 +13,7 @@ export const RULES = [
   "Cada cota custa R$ 60 e cada pessoa compra quantas quiser.",
   "Cada pessoa escolhe 6 números de 1 a 60, uma única vez. O voto não pesa pelas cotas: quem tem 5 cotas vota igual a quem tem 1.",
   "O ranking vai do número mais escolhido ao menos escolhido. Em caso de empate, fica na frente o número escolhido primeiro.",
-  "Só entram no ranking os votos de quem teve o Pix aprovado pelo Avá.",
+  "Só entram no ranking os votos de quem teve o Pix aprovado pelo organizador do bolão.",
   "Um jogo de n números custa C(n,6) × R$ 6, porque equivale a C(n,6) apostas simples. Um jogo de 7 números custa R$ 42; um de 12, R$ 5.544.",
   "Com o dinheiro das cotas, faz-se o maior jogo que cabe e repete-se até não sobrar valor para uma aposta simples.",
   "Os jogos consomem o ranking em sequência, sem repetir números; se o ranking acabar, volta ao começo.",
@@ -34,19 +34,20 @@ export const ABOUT: InfoPageContent = {
   path: "/about",
   title: "Sobre",
   headline: "SOBRE",
-  description: "O que é o Bolão da Mega, quem organiza e como o dinheiro e os jogos são tratados.",
+  description: "O que é o Bolão da Mega, quem organiza cada bolão e como o dinheiro e os jogos são tratados.",
   sections: [
     {
       heading: "O que é",
       paragraphs: [
-        "O Bolão da Mega é o site do bolão da Mega da Virada de um grupo de colegas de trabalho. Ele substitui o processo manual de Pix, comprovante por mensagem e planilha que o Avá fazia todo fim de ano: cada pessoa entra, paga, manda o comprovante e escolhe seus 6 números num lugar só.",
-        "O Avá é o organizador e o único administrador: ele confere cada pagamento, acompanha o ranking dos números, monta os jogos e registra as apostas.",
+        "O Bolão da Mega é uma ferramenta para grupos de amigos e colegas organizarem o bolão da Mega da Virada sem planilha nem comprovante perdido no WhatsApp: cada pessoa entra, paga, manda o comprovante e escolhe seus 6 números num lugar só.",
+        "Qualquer pessoa pode criar uma conta de organizador e abrir o seu bolão. Cada bolão é uma sala separada, com código próprio, valores próprios e participantes próprios. Quem está numa sala não vê as outras.",
       ],
     },
     {
-      heading: "Como o dinheiro e os jogos funcionam",
+      heading: "Quem organiza e como o dinheiro funciona",
       paragraphs: [
-        "O Pix vai direto para a conta pessoal do Avá, com o valor exato das cotas. As apostas são registradas por ele na lotérica ou no aplicativo da Caixa. O site calcula as contas, mas a palavra final é do Avá.",
+        "O organizador de cada bolão é quem criou a sala: ele define o valor da cota e a chave Pix, confere cada pagamento, acompanha o ranking dos números, monta os jogos e registra as apostas.",
+        "O Pix vai direto para a conta do organizador, com o valor exato das cotas. O site não recebe, guarda nem repassa dinheiro. As apostas são registradas pelo organizador na lotérica ou no aplicativo da Caixa. O site faz as contas, mas a palavra final é de quem organiza.",
         "Os jogos não são sorteados nem escolhidos por uma pessoa: saem do voto coletivo do grupo, seguindo as regras abaixo.",
       ],
       items: RULES,
@@ -54,8 +55,8 @@ export const ABOUT: InfoPageContent = {
     {
       heading: "O que o Bolão da Mega não é",
       paragraphs: [
-        "Não é casa de apostas, não vende palpites nem intermedia apostas, e não tem ligação com a Caixa Econômica Federal. É uma ferramenta de organização para um grupo fechado que já se conhece.",
-        "As inscrições abrem em dezembro e o sorteio é a Mega da Virada, em 31/12. Enquanto isso, o site funciona em modo demo, com dados fictícios.",
+        "Não é casa de apostas, não vende palpites nem intermedia apostas, e não tem ligação com a Caixa Econômica Federal. É uma ferramenta de organização para grupos fechados que já se conhecem, e a confiança entre organizador e participantes continua sendo de quem participa.",
+        "O sorteio da Mega da Virada é em 31/12. Cada organizador define até quando as inscrições do seu bolão ficam abertas.",
       ],
     },
   ],
@@ -65,28 +66,32 @@ export const CONTACT_PAGE: InfoPageContent = {
   path: "/contact",
   title: "Contato",
   headline: "CONTATO",
-  description: "Como falar com o Avá, organizador do Bolão da Mega, sobre pagamentos, números e dúvidas.",
+  description: "Com quem falar sobre pagamentos, números e dados: o organizador do seu bolão ou quem mantém o site.",
   sections: [
     {
-      heading: "Fale com o Avá",
+      heading: "Fale com o organizador do seu bolão",
       paragraphs: [
-        "O Bolão da Mega tem uma única pessoa responsável: o Avá, que organiza o bolão. Dúvidas sobre cotas, Pix, comprovantes ou sobre os seus 6 números devem ir direto para ele, pelo mesmo grupo de mensagens onde o link do bolão foi compartilhado.",
-        ...(CONTACT.email ? [`Contato por e-mail: ${CONTACT.email}.`] : []),
+        "Cada bolão tem uma pessoa responsável, quem criou a sala e te passou o código ou o link. Dúvidas sobre cotas, Pix, comprovantes ou sobre os seus 6 números devem ir direto para ela, pelo mesmo grupo de mensagens onde o convite foi compartilhado.",
+        "O site não tem atendimento sobre pagamentos: o Pix vai para a conta do organizador, então só ele consegue conferir, corrigir ou devolver um valor.",
       ],
     },
     {
       heading: "Antes de escrever",
       items: [
-        "Pagamento recusado: abra o seu bilhete pelo link pessoal; o motivo informado pelo Avá aparece lá, e dá para enviar um novo comprovante.",
-        "Perdeu o link do bilhete: peça o link de novo no grupo, informando o nome com que se inscreveu.",
-        "Erro no valor do Pix: o valor exato (R$ 60 por cota) aparece na tela de pagamento antes de você pagar.",
-        "Quer corrigir ou apagar seus dados: veja a página de privacidade e fale com o Avá.",
+        "Pagamento recusado: abra o seu bilhete pelo link pessoal; o motivo informado pelo organizador aparece lá, e dá para enviar um novo comprovante.",
+        "Perdeu o link do bilhete: peça o link de novo no grupo, informando o nome com que se inscreveu. No mesmo aparelho, a página do bolão mostra o seu bilhete.",
+        "Erro no valor do Pix: o valor exato aparece na tela de pagamento antes de você pagar.",
+        "Quer corrigir ou apagar seus dados: veja a página de privacidade e peça ao organizador do seu bolão.",
       ],
     },
     {
-      heading: "Para agentes e desenvolvedores",
+      heading: "Problemas com o site",
       paragraphs: [
-        "Há um servidor MCP público e somente leitura, o llms.txt e a negociação de conteúdo em Markdown. Tudo está descrito na página para desenvolvedores.",
+        "Para erros do site, dúvidas sobre privacidade da plataforma ou denúncias, fale com quem mantém o Bolão da Mega.",
+        ...(CONTACT.email
+          ? [`Contato por e-mail: ${CONTACT.email}.`]
+          : ["O endereço de contato da plataforma ainda não está publicado nesta página; enquanto isso, use o grupo do seu bolão."]),
+        "Há também um servidor MCP público, o llms.txt e a negociação de conteúdo em Markdown, descritos na página para desenvolvedores.",
       ],
     },
   ],
@@ -101,28 +106,31 @@ export const PRIVACY: InfoPageContent = {
     {
       heading: "Quais dados",
       paragraphs: [
-        "Para participar, o Bolão da Mega usa o seu nome, um contato opcional, a quantidade de cotas, os 6 números que você escolhe e o comprovante do Pix (imagem ou PDF). Não pedimos documentos, endereço nem dados bancários além do que aparece no comprovante.",
+        "Participante: o seu nome, um contato opcional, a quantidade de cotas, os 6 números que você escolhe e o comprovante do Pix (imagem ou PDF). Você não cria conta nem senha; o acesso ao seu bilhete é pelo link pessoal, que é secreto.",
+        "Organizador: e-mail e senha da conta, e os dados do bolão (nome, valores, chave Pix, datas e jogos). Não pedimos documentos nem endereço.",
       ],
     },
     {
       heading: "Para que servem",
       paragraphs: [
-        "Os dados servem apenas para organizar o bolão: o Avá confere o seu pagamento, monta o ranking dos números e os jogos, e registra as apostas. Nada é vendido, usado para publicidade ou compartilhado com terceiros.",
+        "Os dados servem apenas para organizar o bolão: o organizador confere o seu pagamento, monta o ranking dos números e os jogos, e registra as apostas. Nada é vendido, usado para publicidade ou compartilhado com terceiros além da infraestrutura descrita abaixo.",
       ],
     },
     {
       heading: "Onde ficam e quem vê",
       items: [
-        "Hoje, em modo demo, os dados são fictícios e ficam só no navegador de quem usa (localStorage), sem ir para um servidor.",
-        "Quando as inscrições abrirem em dezembro, os dados passam para um banco de dados e um armazenamento privado de comprovantes, acessíveis apenas ao Avá.",
-        "Os outros participantes não veem seus números nem o ranking até as apostas serem feitas.",
-        "O site não usa cookies de rastreamento nem ferramentas de análise de audiência. A hospedagem na Vercel registra dados técnicos de acesso, como qualquer servidor web.",
+        "Os dados ficam num banco de dados e num armazenamento privado de comprovantes (Supabase, servidores em São Paulo). A hospedagem do site é a Vercel, que registra dados técnicos de acesso, como qualquer servidor web.",
+        "Cada bolão é isolado: o organizador só vê os participantes e comprovantes do próprio bolão, e ninguém vê o de outro. Os comprovantes ficam em armazenamento privado, acessíveis só ao organizador daquela sala.",
+        "Quem tem o código do bolão vê a lista de nomes, a quantidade de cotas e se o Pix foi confirmado. O seu contato e o seu comprovante não aparecem para os outros participantes.",
+        "Os números de cada participante ficam em segredo, inclusive dos outros participantes, até o organizador marcar o bolão como apostado. Cada pessoa vê os próprios números pelo link pessoal.",
+        "Modo demo: os dados são fictícios e ficam só no navegador, sem ir para um servidor.",
+        "O site não usa cookies de rastreamento nem ferramentas de análise de audiência.",
       ],
     },
     {
       heading: "Seus direitos",
       paragraphs: [
-        "Pela Lei Geral de Proteção de Dados (Lei 13.709/2018), você pode pedir acesso, correção ou exclusão dos seus dados. Faça o pedido ao Avá, pelo grupo do bolão ou pelo contato indicado na página de contato.",
+        "Pela Lei Geral de Proteção de Dados (Lei 13.709/2018), você pode pedir acesso, correção ou exclusão dos seus dados. Como o organizador do seu bolão decide para que os dados da turma são usados, faça o pedido a ele, pelo grupo do bolão. Para dados de conta de organizador ou questões da plataforma, use o contato indicado na página de contato.",
       ],
     },
   ],
@@ -157,7 +165,7 @@ export const DEVELOPERS: InfoPageContent = {
     {
       heading: "Quando usar",
       paragraphs: [
-        "Use estes recursos para explicar como funciona o bolão da Mega da Virada do Avá ou para conferir as contas de um bolão com cotas de R$ 60. Eles não registram inscrições, não confirmam pagamentos e não mostram números de participantes.",
+        "Use estes recursos para explicar como funciona o bolão da Mega da Virada ou para conferir as contas de um bolão com cotas de R$ 60. Eles não registram inscrições, não confirmam pagamentos e não mostram números de participantes.",
       ],
     },
   ],
@@ -196,7 +204,7 @@ export function homeMarkdown(): string {
     [
       `# ${SITE_NAME}`,
       `> ${SITE_DESCRIPTION}`,
-      "Mega da Virada: sorteio em 31/12, inscrições abertas em dezembro. O site está em modo demo, com dados fictícios, até a edição abrir.",
+      "Mega da Virada: sorteio em 31/12. Cada organizador cria o seu bolão, uma sala separada com código próprio, e define o valor da cota e o prazo das inscrições.",
       "## Como funciona",
       STEPS.map((s, i) => `${i + 1}. **${s.title}**: ${s.text}`).join("\n"),
       "## Regras do bolão",

@@ -95,7 +95,8 @@ begin
 end $$;
 
 -- ---------------------------------------------------------------- visão pública da sala
--- Devolve a sala e os participantes SEM token, contato nem comprovante, exceto as linhas cujo
+-- Devolve a sala e os participantes SEM token, contato nem comprovante, e SEM números (nem jogos)
+-- até o status "apostada", exceto as linhas cujo
 -- token o aparelho informa (as próprias inscrições de quem está olhando).
 create or replace function public.get_public_snapshot(p_code text, p_tokens text[] default '{}')
 returns jsonb
@@ -105,7 +106,7 @@ language sql security definer stable set search_path = public as $$
       'id', b.id, 'code', b.code, 'name', b.name, 'quotaPrice', b.quota_price, 'betPrice', b.bet_price,
       'pixKey', b.pix_key, 'pixHolder', b.pix_holder, 'deadline', b.deadline, 'drawDate', b.draw_date,
       'status', b.status),
-    'games', b.games,
+    'games', case when b.status = 'apostada' then b.games else null end,
     'participants', coalesce((
       select jsonb_agg(jsonb_build_object(
         'id', p.id,
@@ -113,8 +114,8 @@ language sql security definer stable set search_path = public as $$
         'name', p.name,
         'contact', case when p.token = any(p_tokens) then p.contact else '' end,
         'quotas', p.quotas,
-        'numbers', p.numbers,
-        'numbersAt', p.numbers_at,
+        'numbers', case when p.token = any(p_tokens) or b.status = 'apostada' then to_jsonb(p.numbers) else '[]'::jsonb end,
+        'numbersAt', case when p.token = any(p_tokens) or b.status = 'apostada' then p.numbers_at else null end,
         'receipt', case when p.token = any(p_tokens) and p.receipt_name is not null then
             jsonb_build_object('name', p.receipt_name, 'type', p.receipt_type, 'uploadedAt', p.receipt_uploaded_at)
           else null end,
