@@ -1,5 +1,5 @@
 export const SITE_NAME = "Bolão da Mega";
-export const SITE_DESCRIPTION = "O bolão da Mega da Virada do Avá: cotas, Pix, comprovante e 6 números.";
+export const SITE_DESCRIPTION = "Crie o bolão da Mega da Virada da sua turma: cotas, Pix, comprovante e 6 números de cada um.";
 export const SITE_LANG = "pt-BR";
 /** Data da última revisão do conteúdo público (usada no sitemap). */
 export const CONTENT_UPDATED = "2026-10-04";

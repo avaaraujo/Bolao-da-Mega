@@ -13,7 +13,7 @@ export function llmsTxt(): string {
         "- Someone asks how a Mega da Virada pool (bolão) with quotas, Pix payments and group-voted numbers works: read the rules in [Início](" + absoluteUrl("/") + ") or call the MCP tool `get_bolao_info`.",
         "- Someone wants to know which games a pool of N quotas (R$ 60 each) can afford, largest game first: call the MCP tool `calculate_game_plan` with `quotas` or `totalBRL`.",
         "- Someone needs the price of a game with n numbers (6 to 20, C(n,6) × R$ 6): call `calculate_game_cost`.",
-        "- Not for: joining the pool, confirming payments or reading participants' numbers. Those happen only for invited people, in the web app, with the organizer (o Avá). This site does not sell bets and is not affiliated with Caixa.",
+        "- Not for: joining the pool, confirming payments or reading participants' numbers. Those happen only for invited people, in the web app, with each pool's organizer. This site does not sell bets and is not affiliated with Caixa.",
       ].join("\n"),
       "## How to call",
       [
