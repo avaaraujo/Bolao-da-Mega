@@ -39,7 +39,7 @@ Participantes não têm conta: entram pelo código e usam o token do link pessoa
 
 ## Conferência de Pix por IA
 
-Quando o participante manda o comprovante, `POST /api/comprovantes/conferir` baixa o arquivo do bucket e pede ao Claude (`claude-opus-5-5`) só a **leitura** dos campos: valor, data e hora, destinatário, chave, pagador, ID da transação e sinais de edição. Quem decide são as regras em `src/lib/pix-check.ts`, que são testadas:
+Quando o participante manda o comprovante, `POST /api/comprovantes/conferir` baixa o arquivo do bucket e pede ao Claude (padrão `claude-haiku-4-5`, troque com `PIX_REVIEW_MODEL`) só a **leitura** dos campos: valor, data e hora, destinatário, chave, pagador, ID da transação e sinais de edição. Quem decide são as regras em `src/lib/pix-check.ts`, que são testadas:
 
 - **aprova sozinho** quando conta, valor exato e horário (entre 2 h antes da inscrição e o envio) batem;
 - **recusa sozinho** só o que é objetivo: não é Pix, foi para outra pessoa, ou valor a menos;

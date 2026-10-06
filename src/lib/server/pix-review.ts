@@ -9,7 +9,15 @@ import { decide, type AiCheck, type AiCheckRecord, type PixExtraction } from "..
  * serviço do Supabase e a chave da API da Anthropic, e só para organizadores em `ai_reviewers`.
  */
 
-export const MODEL = "claude-opus-5-5";
+/**
+ * Modelo que lê os comprovantes. Padrão: Haiku 4.5, o mais barato com visão e saída estruturada
+ * (ler um print de banco é tarefa simples; quem decide são as regras). Troca sem deploy de código
+ * pela variável PIX_REVIEW_MODEL na Vercel, ex.: claude-sonnet-5-5 ou claude-opus-5-5.
+ */
+export const MODEL = process.env.PIX_REVIEW_MODEL?.trim() || "claude-haiku-4-5";
+
+// Haiku 4.5 não aceita `effort` (dá erro 400); nos modelos novos, leitura simples pede pouco esforço.
+const EFFORT = /haiku/.test(MODEL) ? undefined : ({ effort: "low" } as const);
 const BUCKET = "comprovantes";
 
 export type ReviewResult =
@@ -84,7 +92,7 @@ async function extract(bytes: Uint8Array, media: Media, expected: { holder: stri
   const response = await client.messages.parse({
     model: MODEL,
     max_tokens: 16000,
-    output_config: { effort: "medium", format: zodOutputFormat(Extraction) },
+    output_config: { ...EFFORT, format: zodOutputFormat(Extraction) },
     system: SYSTEM,
     messages: [
       {
