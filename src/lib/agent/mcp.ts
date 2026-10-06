@@ -67,7 +67,7 @@ const TOOLS: Tool[] = [
         drawDate: "31/12 (Mega da Virada)",
         steps: STEPS.map((s) => `${s.title}: ${s.text}`),
         rules: RULES,
-        joinUrl: absoluteUrl("/entrar"),
+        joinUrl: absoluteUrl("/"),
       };
       const text = [
         `${SITE_NAME}: ${SITE_DESCRIPTION}`,

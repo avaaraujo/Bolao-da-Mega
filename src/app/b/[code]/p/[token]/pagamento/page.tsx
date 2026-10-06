@@ -12,7 +12,7 @@ import { ACCEPTED_RECEIPTS, prepareReceipt } from "@/lib/receipt";
 import type { Receipt } from "@/lib/types";
 
 export default function Pagamento() {
-  const { token, snapshot, ds, participant } = useParticipant();
+  const { token, snapshot, ds, participant, base } = useParticipant();
   const router = useRouter();
   const input = useRef<HTMLInputElement>(null);
   const [receipt, setReceipt] = useState<Receipt | null>(null);
@@ -59,8 +59,8 @@ export default function Pagamento() {
     setBusy(true);
     try {
       await ds.attachReceipt(token, receipt);
-      toast.success("Comprovante enviado. O Avá vai conferir.");
-      router.push(participant!.numbers.length ? `/p/${token}` : `/p/${token}/volante`);
+      toast.success("Comprovante enviado. O organizador vai conferir.");
+      router.push(participant!.numbers.length ? `${base}/p/${token}` : `${base}/p/${token}/volante`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Não deu para enviar. Tente de novo.");
       setBusy(false);
@@ -164,7 +164,7 @@ export default function Pagamento() {
               {busy ? "Enviando…" : "Enviar comprovante"} <ArrowRight size={20} weight="bold" aria-hidden="true" />
             </Button>
           ) : alreadySent ? (
-            <Button variant="outline" onClick={() => router.push(`/p/${token}`)}>
+            <Button variant="outline" onClick={() => router.push(`${base}/p/${token}`)}>
               Ver meu bilhete
             </Button>
           ) : (
@@ -175,7 +175,7 @@ export default function Pagamento() {
         </ActionBar>
       }
     >
-      <BackLink href={`/p/${token}`}>Meu bilhete</BackLink>
+      <BackLink href={`${base}/p/${token}`}>Meu bilhete</BackLink>
       <InkTitle size="lg" stack className="mt-3">
         {"PAGUE\nNO PIX"}
       </InkTitle>

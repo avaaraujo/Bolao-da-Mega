@@ -12,7 +12,7 @@ import { Volante } from "@/components/volante";
 import { PICK } from "@/lib/rules";
 
 export default function VolantePage() {
-  const { token, snapshot, ds, participant } = useParticipant();
+  const { token, snapshot, ds, participant, base } = useParticipant();
   const router = useRouter();
   const [picked, setPicked] = useState<number[] | null>(null);
   const [busy, setBusy] = useState(false);
@@ -50,7 +50,7 @@ export default function VolantePage() {
       try {
         sessionStorage.setItem(`bolao:carimbo:${token}`, "1");
       } catch {}
-      router.push(`/p/${token}`);
+      router.push(`${base}/p/${token}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Não deu para salvar. Tente de novo.");
       setBusy(false);
@@ -81,7 +81,7 @@ export default function VolantePage() {
       bar={
         <ActionBar note={confirmed && editable ? `Toque num número para trocar até ${dayMonth(snapshot.edition.deadline)}.` : undefined}>
           {confirmed ? (
-            <ButtonLink href={`/p/${token}`} variant="stamp">
+            <ButtonLink href={`${base}/p/${token}`} variant="stamp">
               <SealCheck size={22} weight="fill" aria-hidden="true" /> Números carimbados · ver bilhete
             </ButtonLink>
           ) : (
@@ -98,7 +98,7 @@ export default function VolantePage() {
       }
     >
       <div className="flex items-center justify-between">
-        <BackLink href={`/p/${token}`}>Meu bilhete</BackLink>
+        <BackLink href={`${base}/p/${token}`}>Meu bilhete</BackLink>
       </div>
       <InkTitle className="mt-1">BOLÃO DA MEGA</InkTitle>
       <ParticipantStrip className="mt-3" p={participant} quotaPrice={snapshot.edition.quotaPrice} />

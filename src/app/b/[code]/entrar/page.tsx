@@ -11,7 +11,7 @@ import { brlShort, plural } from "@/lib/format";
 const MAX_QUOTAS = 50;
 
 export default function Entrar() {
-  const { snapshot, ds } = useBolao();
+  const { snapshot, ds, base } = useBolao();
   const router = useRouter();
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
@@ -33,7 +33,7 @@ export default function Entrar() {
     try {
       const p = await ds.createParticipant({ name, contact, quotas });
       rememberToken(p.token);
-      router.push(`/p/${p.token}/pagamento`);
+      router.push(`${base}/p/${p.token}/pagamento`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Não deu para entrar agora. Tente de novo.");
       setBusy(false);
@@ -95,7 +95,7 @@ export default function Entrar() {
           </ActionBar>
         }
       >
-        <BackLink href="/">Início</BackLink>
+        <BackLink href={base}>Início</BackLink>
         <InkTitle size="lg" stack className="mt-3">
           {"ENTRAR\nNO BOLÃO"}
         </InkTitle>
@@ -112,7 +112,7 @@ export default function Entrar() {
           />
           <Field
             label="WhatsApp ou e-mail"
-            hint="Opcional. Só para o Avá te chamar se o Pix não bater."
+            hint="Opcional. Só para o organizador te chamar se o Pix não bater."
             value={contact}
             onChange={(e) => setContact(e.target.value)}
             maxLength={80}

@@ -1,6 +1,8 @@
 import type { Snapshot } from "./source";
 import type { Participant, PaymentStatus } from "../types";
 
+export const DEMO_CODE = "DEMO-2026";
+
 // Dados fictícios para o modo demo. Nomes inventados.
 const NAMES = [
   "Marina Lopes", "Caio Ferraz", "Bia Nogueira", "Duda Campos", "Rafa Teixeira", "Lu Barreto",
@@ -82,7 +84,9 @@ export function seedSnapshot(): Snapshot {
 
   return {
     edition: {
-      year: 2026,
+      id: "demo",
+      code: DEMO_CODE,
+      name: "Bolão da Firma (demo)",
       quotaPrice: 60,
       betPrice: 6,
       pixKey: "bolao.demo@exemplo.com",
@@ -93,5 +97,6 @@ export function seedSnapshot(): Snapshot {
     },
     participants,
     games: null,
+    isOwner: true,
   };
 }

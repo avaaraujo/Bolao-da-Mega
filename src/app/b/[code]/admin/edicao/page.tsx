@@ -30,7 +30,7 @@ const BACK: Partial<Record<EditionStatus, Move>> = {
 };
 
 export default function EdicaoPage() {
-  const { snapshot, ds } = useBolao();
+  const { snapshot, ds, base } = useBolao();
   const [draft, setDraft] = useState<Partial<Edition>>({});
   const [confirmReset, setConfirmReset] = useState(false);
   const [pending, setPending] = useState<Move | null>(null);
@@ -66,7 +66,7 @@ export default function EdicaoPage() {
 
   return (
     <AdminSheet
-      title={`EDIÇÃO ${edition.year}`}
+      title={edition.name.toUpperCase()}
       split="wide-right"
       side={
         <>
@@ -163,7 +163,7 @@ export default function EdicaoPage() {
               )}
               {/* Liberar o resultado só existe em Jogos, depois de confirmar os jogos e fazer as apostas. */}
               {edition.status === "fechada" && (
-                <ButtonLink href="/admin/jogos" className="min-h-14">
+                <ButtonLink href={`${base}/admin/jogos`} className="min-h-14">
                   Montar jogos e liberar o resultado
                 </ButtonLink>
               )}

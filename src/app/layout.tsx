@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Anybody, Archivo } from "next/font/google";
 import { Toaster } from "sonner";
-import { BolaoProvider } from "@/components/bolao-provider";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
@@ -61,7 +60,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <feDisplacementMap in="inked" in2="warp" scale="2" xChannelSelector="R" yChannelSelector="G" />
           </filter>
         </svg>
-        <BolaoProvider>{children}</BolaoProvider>
+        {children}
         <Toaster
           position="top-center"
           toastOptions={{

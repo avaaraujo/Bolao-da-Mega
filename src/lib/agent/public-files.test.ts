@@ -64,10 +64,10 @@ describe("sitemap e robots", () => {
     const entries = sitemap();
     const urls = entries.map((e) => e.url);
     for (const u of urls) expect(u).toMatch(/^https?:\/\//);
-    for (const path of ["/", "/about", "/contact", "/privacy", "/developers", "/entrar"]) {
+    for (const path of ["/", "/about", "/contact", "/privacy", "/developers"]) {
       expect(urls.some((u) => u.endsWith(path))).toBe(true);
     }
-    expect(urls.some((u) => u.includes("/admin") || u.includes("/p/"))).toBe(false);
+    expect(urls.some((u) => u.includes("/admin") || u.includes("/b/"))).toBe(false);
     expect(entries.every((e) => e.lastModified)).toBe(true);
   });
   it("robots aponta para o sitemap", () => {

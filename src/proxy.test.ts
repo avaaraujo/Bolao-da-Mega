@@ -3,7 +3,7 @@ import { NextRequest } from "next/server";
 import { proxy } from "./proxy";
 
 const get = (path: string, accept?: string) =>
-  proxy(new NextRequest(`https://bolaodamega1.vercel.app${path}`, { headers: accept ? { accept } : {} }));
+  proxy(new NextRequest(`https://bolaodamega.avaaraujo.com${path}`, { headers: accept ? { accept } : {} }));
 
 describe("proxy: Markdown", () => {
   it("home em Markdown com Vary: Accept", async () => {
@@ -43,7 +43,7 @@ describe("proxy: Markdown", () => {
   });
 
   it("rotas do app e endpoints seguem adiante mesmo pedindo Markdown", () => {
-    for (const path of ["/entrar", "/admin", "/p/abc", "/mcp", "/llms.txt", "/.well-known/mcp"]) {
+    for (const path of ["/b/FIRMA-7K3Q/entrar", "/admin", "/b/FIRMA-7K3Q/p/abc", "/mcp", "/llms.txt", "/.well-known/mcp"]) {
       const res = get(path, "text/markdown");
       expect(res.headers.get("x-middleware-next")).toBe("1");
     }

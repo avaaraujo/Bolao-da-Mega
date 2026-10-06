@@ -1,15 +1,19 @@
-import { createMockSource } from "./mock";
-import type { DataSource } from "./source";
-import { createSupabaseSource } from "./supabase";
+import { createMockPlatform } from "./mock";
+import type { DataSource, Platform } from "./source";
+import { createSupabasePlatform } from "./supabase";
 
-let instance: DataSource | null = null;
+let instance: Platform | null = null;
 
-export function getDataSource(): DataSource {
+export function getPlatform(): Platform {
   if (!instance) {
     instance =
-      process.env.NEXT_PUBLIC_DATA_SOURCE === "supabase" ? createSupabaseSource() : createMockSource();
+      process.env.NEXT_PUBLIC_DATA_SOURCE === "supabase" ? createSupabasePlatform() : createMockPlatform();
   }
   return instance;
 }
 
-export type { DataSource, Snapshot } from "./source";
+export function getDataSource(code: string): DataSource {
+  return getPlatform().source(code);
+}
+
+export type { AdminUser, DataSource, NewBolao, Platform, Snapshot } from "./source";

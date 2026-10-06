@@ -1,15 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { renderToString } from "react-dom/server";
-import { BolaoProvider } from "./bolao-provider";
-import { Home } from "./home";
+import { Landing } from "./landing";
+
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: () => {} }) }));
 
 /** O HTML do servidor (sem JavaScript) precisa ter conteúdo de verdade. */
-describe("home sem JavaScript", () => {
-  const html = renderToString(
-    <BolaoProvider>
-      <Home />
-    </BolaoProvider>,
-  );
+describe("página inicial sem JavaScript", () => {
+  const html = renderToString(<Landing />);
   const text = html
     .replace(/<(script|style|svg)[\s\S]*?<\/\1>/g, "")
     .replace(/<[^>]+>/g, " ")

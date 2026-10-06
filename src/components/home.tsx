@@ -11,7 +11,7 @@ import { brlShort, dayMonth, firstName, plural } from "@/lib/format";
 import { RULES, STEPS } from "@/lib/agent/content";
 
 export function Home() {
-  const { snapshot } = useBolao();
+  const { snapshot, base } = useBolao();
   const mine = useMyTokens();
 
   // No HTML do servidor e antes de os dados carregarem, a capa já mostra o texto fixo (título,
@@ -24,11 +24,11 @@ export function Home() {
   const myEntries = snapshot ? snapshot.participants.filter((p) => mine.includes(p.token)) : [];
 
   const bar = !edition ? null : edition.status === "aberta" ? (
-    <ButtonLink href="/entrar">
+    <ButtonLink href={`${base}/entrar`}>
       Entrar no bolão <ArrowRight size={20} weight="bold" aria-hidden="true" />
     </ButtonLink>
   ) : edition.status === "apostada" ? (
-    <ButtonLink href="/resultado">
+    <ButtonLink href={`${base}/resultado`}>
       Ver ranking e jogos <ArrowRight size={20} weight="bold" aria-hidden="true" />
     </ButtonLink>
   ) : (
@@ -79,9 +79,9 @@ export function Home() {
               <Link href="/privacy" className="underline underline-offset-4">Privacidade</Link>
             </nav>
             <div className="flex items-center justify-between gap-4">
-              <span className="semi font-semibold">Modo demo: dados fictícios</span>
-              <Link href="/admin" className="semi font-bold text-blue-deep underline underline-offset-4">
-                Área do Avá
+              <span className="semi font-semibold">{process.env.NEXT_PUBLIC_DATA_SOURCE === "supabase" ? `Código ${edition?.code ?? ""}` : "Modo demo: dados fictícios"}</span>
+              <Link href={`${base}/admin`} className="semi font-bold text-blue-deep underline underline-offset-4">
+                Área do organizador
               </Link>
             </div>
           </footer>
@@ -90,13 +90,13 @@ export function Home() {
     >
       <InkTitle stack>{"BOLÃO\nDA MEGA"}</InkTitle>
       <p className="semi mt-3 text-[18px] font-bold text-blue-deep lg:mt-5 lg:text-[22px]">
-        Mega da Virada{edition ? ` · ${dayMonth(edition.drawDate)} · edição ${edition.year}` : ""}
+        Mega da Virada{edition ? ` · ${dayMonth(edition.drawDate)} · ${edition.name}` : ""}
       </p>
 
       {myEntries.map((p) => (
         <Link
           key={p.token}
-          href={`/p/${p.token}`}
+          href={`${base}/p/${p.token}`}
           className="mt-5 flex items-center justify-between gap-3 rounded-md bg-yellow px-4 py-3.5 text-ink transition-transform active:translate-y-px"
         >
           <span className="semi text-[17px] font-bold leading-snug">

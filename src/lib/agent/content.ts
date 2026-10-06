@@ -202,7 +202,7 @@ export function homeMarkdown(): string {
       "## Regras do bolão",
       RULES.map((r) => `- ${r}`).join("\n"),
       "## Participar",
-      `Quem recebeu o convite entra em [${absoluteUrl("/entrar")}](${absoluteUrl("/entrar")}), faz o Pix e envia o comprovante. O organizador é o Avá.`,
+      `Quem recebeu o convite digita o código do bolão em [${absoluteUrl("/")}](${absoluteUrl("/")}) (ou abre o link da sala), faz o Pix e envia o comprovante. Cada bolão tem seu organizador.`,
       footerLinks(),
     ].join("\n\n") + "\n"
   );

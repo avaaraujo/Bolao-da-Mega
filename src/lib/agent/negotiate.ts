@@ -57,10 +57,10 @@ export function prefersMarkdown(accept: string | null | undefined): boolean {
 export type RouteKind = "markdown" | "pass" | "unknown";
 
 const APP_ROUTES: RegExp[] = [
-  /^\/entrar$/,
-  /^\/resultado$/,
-  /^\/admin(\/(pagamentos|ranking|jogos|edicao))?$/,
-  /^\/p\/[^/]+(\/(pagamento|volante))?$/,
+  /^\/admin$/,
+  /^\/b\/[^/]+(\/(entrar|resultado))?$/,
+  /^\/b\/[^/]+\/admin(\/(pagamentos|ranking|jogos|edicao))?$/,
+  /^\/b\/[^/]+\/p\/[^/]+(\/(pagamento|volante))?$/,
   /^\/(opengraph-image|apple-icon|mcp|llms\.txt|robots\.txt|sitemap\.xml|icon\.svg)$/,
   /^\/\.well-known\/mcp$/,
 ];

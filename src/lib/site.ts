@@ -10,7 +10,7 @@ export const SITE_URL = (
   (process.env.VERCEL_PROJECT_PRODUCTION_URL
     ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
     : process.env.NODE_ENV === "production"
-      ? "https://bolaodamega1.vercel.app"
+      ? "https://bolaodamega.avaaraujo.com"
       : "http://localhost:3077")
 ).replace(/\/+$/, "");
 

@@ -30,14 +30,14 @@ describe("classifyRoute", () => {
   it("separa markdown, rotas do app e inexistentes", () => {
     expect(classifyRoute("/", has)).toBe("markdown");
     expect(classifyRoute("/about/", has)).toBe("markdown");
-    expect(classifyRoute("/entrar", has)).toBe("pass");
-    expect(classifyRoute("/admin/ranking", has)).toBe("pass");
-    expect(classifyRoute("/p/abc123/volante", has)).toBe("pass");
+    expect(classifyRoute("/b/FIRMA-7K3Q/entrar", has)).toBe("pass");
+    expect(classifyRoute("/b/FIRMA-7K3Q/admin/ranking", has)).toBe("pass");
+    expect(classifyRoute("/b/FIRMA-7K3Q/p/abc123/volante", has)).toBe("pass");
     expect(classifyRoute("/mcp", has)).toBe("pass");
     expect(classifyRoute("/.well-known/mcp", has)).toBe("pass");
     expect(classifyRoute("/sitemap.xml", has)).toBe("pass");
     expect(classifyRoute("/__ora-404-probe-wsk27qql", has)).toBe("unknown");
-    expect(classifyRoute("/admin/outra", has)).toBe("unknown");
+    expect(classifyRoute("/b/FIRMA-7K3Q/admin/outra", has)).toBe("unknown");
   });
   it("normaliza barra final", () => {
     expect(normalizePath("/")).toBe("/");
