@@ -37,6 +37,8 @@ create table public.participants (
   payment text not null default 'aguardando'
     check (payment in ('aguardando', 'em_analise', 'aprovado', 'recusado')),
   reject_reason text,
+  ai_check jsonb,                                  -- leitura da IA do comprovante atual (ver claim_ai_check)
+  ai_checks_count int not null default 0,          -- limite de leituras pagas por participante
   created_at timestamptz not null default now(),
   constraint six_numbers check (
     cardinality(numbers) in (0, 6)
@@ -149,7 +151,7 @@ language plpgsql security definer set search_path = public as $$
 begin
   update public.participants
      set receipt_path = p_path, receipt_name = p_name, receipt_type = p_type,
-         receipt_uploaded_at = now(), payment = 'em_analise', reject_reason = null
+         receipt_uploaded_at = now(), payment = 'em_analise', reject_reason = null, ai_check = null
    where token = p_token;
   if not found then raise exception 'Participante não encontrado.'; end if;
 end $$;
@@ -174,6 +176,40 @@ language sql security definer stable set search_path = public as $$
   select exists (select 1 from public.participants where token = p_token and bolao_id::text = p_bolao);
 $$;
 
+-- ---------------------------------------------------------------- conferência por IA
+-- Organizadores com a leitura de comprovantes por IA liberada (custa chamada de API).
+create table public.ai_reviewers (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+alter table public.ai_reviewers enable row level security;
+create policy ai_reviewers_self on public.ai_reviewers
+  for select to authenticated using (user_id = (select auth.uid()));
+
+-- Reserva a leitura de um comprovante (evita duas chamadas pagas para o mesmo arquivo).
+-- false se já há resultado para esse arquivo, se outra leitura roda há menos de 2 min,
+-- ou se o participante já gastou o limite. Só o servidor (service_role) chama.
+create or replace function public.claim_ai_check(p_id uuid, p_path text, p_force boolean default false)
+returns boolean
+language plpgsql security definer set search_path = public as $$
+declare ok boolean;
+begin
+  update public.participants
+     set ai_check = jsonb_build_object('state', 'running', 'path', p_path, 'startedAt', now()),
+         ai_checks_count = ai_checks_count + 1
+   where id = p_id
+     and receipt_path = p_path
+     and ai_checks_count < 8
+     and (
+       ai_check is null
+       or ai_check->>'path' is distinct from p_path
+       or (ai_check->>'state' = 'running' and (ai_check->>'startedAt')::timestamptz < now() - interval '2 minutes')
+       or (p_force and ai_check->>'state' = 'done')
+     )
+  returning true into ok;
+  return coalesce(ok, false);
+end $$;
+
 -- Só as funções de participante ficam abertas para anon; o resto é restrito.
 revoke execute on all functions in schema public from public, anon, authenticated;
 grant execute on function public.get_public_snapshot(text, text[]) to anon, authenticated;
@@ -182,6 +218,7 @@ grant execute on function public.attach_receipt(text, text, text, text) to anon,
 grant execute on function public.set_numbers(text, int[]) to anon, authenticated;
 grant execute on function public.token_belongs_to_bolao(text, text) to anon, authenticated;
 grant execute on function public.create_bolao(text, int, int, text, text, date, date) to authenticated;
+grant execute on function public.claim_ai_check(uuid, text, boolean) to service_role;
 
 -- ---------------------------------------------------------------- comprovantes (bucket privado)
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
@@ -198,4 +235,5 @@ create policy comprovantes_owner_read on storage.objects
   for select to authenticated
   using (bucket_id = 'comprovantes'
     and exists (select 1 from public.bolaos b
-                where b.id::text = (storage.foldername(name))[1] and b.owner_id = (select auth.uid())));
+                -- `objects.name` qualificado: sem isso, `name` vira `bolaos.name` dentro da subconsulta.
+                where b.id::text = (storage.foldername(objects.name))[1] and b.owner_id = (select auth.uid())));

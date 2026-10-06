@@ -1,15 +1,20 @@
 "use client";
 
+import { useRef } from "react";
 import type { Game } from "@/lib/types";
 import { brlShort, pad2 } from "@/lib/format";
 import { cx, Stamp } from "./riso";
+import { useDrop, usePasses } from "./motion";
 
 const INKS = ["bg-blue", "bg-pink", "bg-yellow"];
 
 /** Faixa de custo: cada jogo ocupa a fração exata do valor arrecadado. */
 export function CostBar({ games, total }: { games: Game[]; total: number }) {
+  // Cada jogo é uma passada de tinta: imprime da esquerda, um depois do outro.
+  const ref = useRef<HTMLDivElement>(null);
+  usePasses(ref, "[data-pass]", [games.length]);
   return (
-    <div className="flex flex-col gap-1.5">
+    <div ref={ref} className="flex flex-col gap-1.5">
       <div
         className="flex h-9 w-full overflow-hidden rounded-[3px] border-2 border-blue bg-paper p-[2px]"
         role="img"
@@ -23,6 +28,7 @@ export function CostBar({ games, total }: { games: Game[]; total: number }) {
           return (
             <span
               key={g.index}
+              data-pass
               className={cx(
                 "ink h-full min-w-[4px] rounded-[1px]",
                 INKS[g.index % INKS.length],
@@ -42,8 +48,11 @@ export function CostBar({ games, total }: { games: Game[]; total: number }) {
 }
 
 export function GameList({ games, highlight = [] }: { games: Game[]; highlight?: number[] }) {
+  // As dezenas caem do globo e quicam até o lugar.
+  const ref = useRef<HTMLOListElement>(null);
+  useDrop(ref, "[data-ball]");
   return (
-    <ol className="flex flex-col">
+    <ol ref={ref} className="flex flex-col">
       {games.map((g) => (
         <li key={g.index} className="flex flex-col gap-2 border-t-2 border-blue py-3.5 first:border-t-0 first:pt-0">
           <div className="condensed flex items-baseline justify-between gap-3">
@@ -55,7 +64,7 @@ export function GameList({ games, highlight = [] }: { games: Game[]; highlight?:
           </div>
           <p className="semi grid grid-cols-6 gap-y-1 text-[22px] font-bold leading-tight text-blue-deep">
             {g.numbers.map((n) => (
-              <span key={n} className="relative justify-self-start px-0.5">
+              <span key={n} data-ball className="relative inline-block justify-self-start px-0.5">
                 {pad2(n)}
                 {highlight.includes(n) && <Stamp n={n} className="h-[1.32em] -translate-x-px" />}
               </span>

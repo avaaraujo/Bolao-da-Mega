@@ -63,6 +63,7 @@ const APP_ROUTES: RegExp[] = [
   /^\/b\/[^/]+\/p\/[^/]+(\/(pagamento|volante))?$/,
   /^\/(opengraph-image|apple-icon|mcp|llms\.txt|robots\.txt|sitemap\.xml|icon\.svg)$/,
   /^\/\.well-known\/mcp$/,
+  /^\/api\//,
 ];
 
 export function normalizePath(pathname: string): string {

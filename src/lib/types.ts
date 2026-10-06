@@ -1,3 +1,5 @@
+import type { AiCheckRecord } from "./pix-check";
+
 export type EditionStatus = "rascunho" | "aberta" | "fechada" | "apostada";
 
 export type Edition = {
@@ -34,6 +36,8 @@ export type Participant = {
   payment: PaymentStatus;
   rejectReason: string | null;
   createdAt: string;
+  /** Conferência da IA do comprovante atual. Só o organizador recebe. */
+  aiCheck?: AiCheckRecord | null;
 };
 
 export type Game = {

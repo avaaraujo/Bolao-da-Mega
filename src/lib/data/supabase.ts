@@ -1,5 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import type { AdminUser, DataSource, NewBolao, Platform, Snapshot } from "./source";
+import type { AdminUser, DataSource, NewBolao, Platform, ReceiptCheck, Snapshot } from "./source";
+import type { AiCheckRecord } from "../pix-check";
 import type { Edition, Game, Participant, PaymentStatus, Receipt } from "../types";
 
 /**
@@ -33,6 +34,29 @@ function myTokens(): string[] {
     return Array.isArray(list) ? list.filter((t): t is string => typeof t === "string") : [];
   } catch {
     return [];
+  }
+}
+
+/** Guarda o token antes de recarregar: senão a primeira leitura depois da inscrição ainda não "vê" a pessoa. */
+function rememberMine(token: string) {
+  try {
+    const list = myTokens();
+    if (!list.includes(token)) localStorage.setItem(MINE, JSON.stringify([...list, token]));
+  } catch {}
+}
+
+async function callReview(body: Record<string, unknown>, bearer?: string): Promise<ReceiptCheck> {
+  try {
+    const res = await fetch("/api/comprovantes/conferir", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}) },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) return { status: "error", message: data.error ?? "Não deu para conferir agora." };
+    return data as ReceiptCheck;
+  } catch {
+    return { status: "error", message: "Sem conexão com a conferência automática." };
   }
 }
 
@@ -75,8 +99,14 @@ function participantFromRow(r: Row, receiptUrl: string | null): Participant {
     payment: r.payment as PaymentStatus,
     rejectReason: (r.reject_reason as string | null) ?? null,
     createdAt: String(r.created_at),
+    // Resultado de um comprovante anterior não vale para o atual.
+    aiCheck: (r.ai_check as AiCheckRecord | null)?.path === r.receipt_path ? (r.ai_check as AiCheckRecord) : null,
   };
 }
+
+// Links assinados reaproveitados entre recargas: um link novo a cada 15 s faria a imagem piscar.
+const SIGNED_S = 3600;
+const signedCache = new Map<string, { url: string; until: number }>();
 
 /** Visão do dono: tudo, com links assinados (1 h) para os comprovantes. */
 async function loadAsOwner(code: string, uid: string): Promise<Snapshot | null> {
@@ -90,15 +120,17 @@ async function loadAsOwner(code: string, uid: string): Promise<Snapshot | null> 
     .order("created_at");
   fail(perr);
   const paths = (rows ?? []).map((r) => r.receipt_path as string | null).filter((p): p is string => !!p);
-  const urls = new Map<string, string>();
-  if (paths.length) {
-    const { data: signed } = await db().storage.from(BUCKET).createSignedUrls(paths, 3600);
-    signed?.forEach((s) => s.path && s.signedUrl && urls.set(s.path, s.signedUrl));
+  const now = Date.now();
+  const missing = paths.filter((p) => (signedCache.get(p)?.until ?? 0) < now);
+  if (missing.length) {
+    const { data: signed } = await db().storage.from(BUCKET).createSignedUrls(missing, SIGNED_S);
+    signed?.forEach((s) => s.path && s.signedUrl && signedCache.set(s.path, { url: s.signedUrl, until: now + (SIGNED_S - 300) * 1000 }));
   }
+  const urls = new Map(paths.map((p) => [p, signedCache.get(p)?.url ?? ""] as const));
   return {
     edition: editionFromRow(b),
     games: (b.games as Game[] | null) ?? null,
-    participants: (rows ?? []).map((r) => participantFromRow(r, urls.get(r.receipt_path as string) ?? null)),
+    participants: (rows ?? []).map((r) => participantFromRow(r, urls.get(r.receipt_path as string) || null)),
     isOwner: true,
   };
 }
@@ -156,6 +188,7 @@ function createSource(code: string): DataSource {
         p_quotas: quotas,
       });
       fail(error);
+      rememberMine((data as Participant).token);
       emit();
       return data as Participant;
     },
@@ -172,11 +205,25 @@ function createSource(code: string): DataSource {
         p_token: token,
         p_path: path,
         p_name: receipt.name,
-        p_type: receipt.type,
+        // Fotos são reduzidas para JPEG antes do envio: vale o tipo do arquivo que subiu.
+        p_type: blob.type || receipt.type,
       });
       fail(error);
       emit();
       return ownParticipant(token);
+    },
+    async checkReceipt(token) {
+      const result = await callReview({ token });
+      emit();
+      return result;
+    },
+    async recheckReceipt(participantId, force = false) {
+      const { data } = await db().auth.getSession();
+      const bearer = data.session?.access_token;
+      if (!bearer) return { status: "error", message: "Entre de novo como organizador." };
+      const result = await callReview({ participantId, force }, bearer);
+      emit();
+      return result;
     },
     async setNumbers(token, numbers) {
       const { error } = await db().rpc("set_numbers", { p_token: token, p_numbers: numbers });
@@ -260,6 +307,10 @@ export function createSupabasePlatform(): Platform {
       });
       fail(error);
       return editionFromRow(data);
+    },
+    async aiReviewEnabled() {
+      const { data } = await db().from("ai_reviewers").select("user_id").limit(1);
+      return !!data?.length;
     },
     source(code) {
       const k = code.toUpperCase();

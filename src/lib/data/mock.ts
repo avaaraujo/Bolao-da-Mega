@@ -128,6 +128,25 @@ function createSource(code: string): DataSource {
         (p) => ({ ...p, receipt, payment: "em_analise", rejectReason: null }),
       );
     },
+    // Demo: simula a conferência por IA (sem chamar API nenhuma) para mostrar o fluxo.
+    async checkReceipt(tok) {
+      await new Promise((r) => setTimeout(r, 3200));
+      const p = mutateParticipant(code, (x) => x.token === tok, (x) => ({ ...x, payment: "aprovado" }));
+      return {
+        status: "done" as const,
+        payment: p.payment,
+        check: {
+          state: "done" as const,
+          path: "demo",
+          verdict: "aprovado" as const,
+          summary: "Conferido na hora: conta, valor e horário batem. (Simulação do modo demo.)",
+          items: [],
+          extracted: null,
+          checkedAt: new Date().toISOString(),
+          model: "demo",
+        },
+      };
+    },
     async setNumbers(tok, numbers) {
       if (must(code).edition.status !== "aberta") throw new Error("Os números não podem mais ser alterados.");
       return mutateParticipant(

@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { CaretDown, FilePdf, ImageBroken } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import { AdminSheet } from "@/components/admin";
-import { useBolao } from "@/components/bolao-provider";
+import { useAdminUser, useBolao } from "@/components/bolao-provider";
+import { gsap, reduced } from "@/components/motion";
+import { AiReport, AiTag } from "@/components/pix-ai";
 import { Button, collapse, cx, useReveal } from "@/components/riso";
 import { brlShort, dateTime, pad2, plural } from "@/lib/format";
 import type { Participant, PaymentStatus } from "@/lib/types";
@@ -16,10 +18,85 @@ const FILTERS: { id: PaymentStatus; label: string }[] = [
   { id: "recusado", label: "Recusados" },
 ];
 
+type Ai = { enabled: boolean; running: ReadonlySet<string>; run: (id: string, force?: boolean) => void };
+const AiContext = createContext<Ai>({ enabled: false, running: new Set(), run: () => {} });
+
+/**
+ * Conferência por IA na fila de Pix. Só aparece para organizadores liberados (tabela ai_reviewers).
+ * Comprovantes "em análise" ainda sem leitura são lidos sozinhos, um por vez, ao abrir a tela:
+ * cobre quem mandou o Pix e fechou o celular antes de a IA terminar.
+ */
+function useAiQueue(participants: Participant[]): Ai {
+  const { ds } = useBolao();
+  const { user, platform } = useAdminUser();
+  const [enabled, setEnabled] = useState(false);
+  const [running, setRunning] = useState<ReadonlySet<string>>(new Set());
+  const tried = useRef(new Set<string>());
+  const stopped = useRef(false);
+
+  useEffect(() => {
+    if (!user || !platform.aiReviewEnabled || !ds.recheckReceipt) return;
+    let alive = true;
+    platform
+      .aiReviewEnabled()
+      .then((on) => alive && setEnabled(on))
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [user, platform, ds]);
+
+  const run = useCallback(
+    (id: string, force = false) => {
+      if (!ds.recheckReceipt) return;
+      setRunning((r) => new Set(r).add(id));
+      ds.recheckReceipt(id, force)
+        .then((res) => {
+          // Sem chave no servidor ou IA fora do ar: para a fila automática e avisa uma vez.
+          if (res.status === "error" || (res.status === "skipped" && res.reason === "not_configured")) {
+            stopped.current = true;
+            toast.error(
+              res.status === "error" ? `Conferência por IA: ${res.message}` : "Conferência por IA sem chave configurada no servidor.",
+              { id: "ia-erro" },
+            );
+          }
+        })
+        .finally(() =>
+          setRunning((r) => {
+            const next = new Set(r);
+            next.delete(id);
+            return next;
+          }),
+        );
+    },
+    [ds],
+  );
+
+  useEffect(() => {
+    if (!enabled || stopped.current || running.size > 0) return;
+    const next = participants.find((p) => p.payment === "em_analise" && p.receipt && !p.aiCheck && !tried.current.has(p.id));
+    if (!next) return;
+    tried.current.add(next.id);
+    run(next.id);
+  }, [enabled, participants, running, run]);
+
+  return useMemo(() => ({ enabled, running, run }), [enabled, running, run]);
+}
+
 export default function Pagamentos() {
   const { snapshot } = useBolao();
   const [filter, setFilter] = useState<PaymentStatus>("em_analise");
   const [open, setOpen] = useState<string | null>(null);
+  const ai = useAiQueue(snapshot?.participants ?? []);
+  const pill = useRef<HTMLSpanElement>(null);
+  const filterIndex = FILTERS.findIndex((f) => f.id === filter);
+  const loaded = !!snapshot;
+  // O marcador amarelo do filtro desliza até a aba escolhida, como um cursor de tinta.
+  useEffect(() => {
+    if (!pill.current) return;
+    if (reduced()) gsap.set(pill.current, { xPercent: filterIndex * 100 });
+    else gsap.to(pill.current, { xPercent: filterIndex * 100, duration: 0.45, ease: "expo.out" });
+  }, [filterIndex, loaded]);
   if (!snapshot) return null;
 
   const { participants, edition } = snapshot;
@@ -35,6 +112,7 @@ export default function Pagamentos() {
   }
 
   return (
+    <AiContext.Provider value={ai}>
     <AdminSheet
       title="PAGAMENTOS"
       split="wide-right"
@@ -71,8 +149,9 @@ export default function Pagamentos() {
       <div
         role="tablist"
         aria-label="Filtrar pagamentos"
-        className="mt-4 grid grid-cols-4 lg:mt-0 overflow-hidden rounded-md border-2 border-blue"
+        className="relative mt-4 grid grid-cols-4 lg:mt-0 overflow-hidden rounded-md border-2 border-blue"
       >
+        <span ref={pill} aria-hidden="true" className="absolute inset-y-0 left-0 w-1/4 bg-yellow" />
         {FILTERS.map((f) => {
           const n = participants.filter((p) => p.payment === f.id).length;
           const active = filter === f.id;
@@ -86,8 +165,9 @@ export default function Pagamentos() {
                 setOpen(null);
               }}
               className={cx(
-                "condensed flex min-h-14 flex-col items-center justify-center border-l-2 border-blue text-[14px] font-extrabold uppercase leading-tight first:border-l-0",
-                active ? "bg-yellow text-ink" : "text-blue-deep hover:bg-paper-deep",
+                // O primeiro filho é o marcador amarelo; a primeira aba é o segundo.
+                "condensed relative flex min-h-14 flex-col items-center justify-center border-l-2 border-blue text-[14px] font-extrabold uppercase leading-tight [&:nth-child(2)]:border-l-0",
+                active ? "text-ink" : "text-blue-deep hover:bg-paper-deep/70",
               )}
             >
               {f.label}
@@ -123,6 +203,7 @@ export default function Pagamentos() {
         </>
       )}
     </AdminSheet>
+    </AiContext.Provider>
   );
 }
 
@@ -181,6 +262,7 @@ function PaymentRow({
           <span className="semi truncate text-[18px] font-bold text-ink">{p.name}</span>
           <span className="text-[14px] text-ink-soft">
             {p.receipt ? `Comprovante ${dateTime(p.receipt.uploadedAt)}` : `Inscrição ${dateTime(p.createdAt)}`}
+            <AiTag check={p.aiCheck} />
           </span>
         </span>
         <span className="semi flex flex-col items-end">
@@ -220,8 +302,14 @@ const DONE: Partial<Record<PaymentStatus, string>> = {
 
 function PaymentDetail({ p, quotaPrice, onDecided }: { p: Participant; quotaPrice: number; onDecided: (id: string) => void }) {
   const { ds } = useBolao();
+  const ai = useContext(AiContext);
   const [rejecting, setRejecting] = useState(false);
   const [reason, setReason] = useState("");
+  // Se a IA apontou um problema objetivo, o motivo da recusa já vem sugerido.
+  const aiReason =
+    p.aiCheck?.state === "done" && p.aiCheck.verdict !== "aprovado"
+      ? p.aiCheck.items.filter((i) => i.status === "erro").map((i) => i.detail).join(" ")
+      : "";
   const [busy, setBusy] = useState(false);
 
   async function set(status: PaymentStatus) {
@@ -254,6 +342,7 @@ function PaymentDetail({ p, quotaPrice, onDecided }: { p: Participant; quotaPric
   return (
     <div className="flex flex-col gap-4">
       <Receipt p={p} />
+      {p.receipt && <AiReport check={p.aiCheck} running={ai.running.has(p.id)} enabled={ai.enabled} onRun={(force) => ai.run(p.id, force)} />}
       <p className="semi text-[16px] text-ink-soft">
         Números: <span className="font-bold text-blue-deep">{p.numbers.length ? p.numbers.map(pad2).join(" ") : "ainda não marcou"}</span>
         {p.contact && (
@@ -307,7 +396,14 @@ function PaymentDetail({ p, quotaPrice, onDecided }: { p: Participant; quotaPric
               </div>
             </>
           ) : (
-            <Button variant="danger" className="min-h-11 self-start text-[15px]" onClick={() => setRejecting(true)}>
+            <Button
+              variant="danger"
+              className="min-h-11 self-start text-[15px]"
+              onClick={() => {
+                if (!reason && aiReason) setReason(aiReason);
+                setRejecting(true);
+              }}
+            >
               Recusar
             </Button>
           )}
@@ -320,6 +416,7 @@ function PaymentDetail({ p, quotaPrice, onDecided }: { p: Participant; quotaPric
 }
 
 function Receipt({ p }: { p: Participant }) {
+  const { ds } = useBolao();
   const r = p.receipt;
   if (!r) return null;
   if (r.dataUrl && r.type.startsWith("image")) {
@@ -345,7 +442,10 @@ function Receipt({ p }: { p: Participant }) {
   return (
     <div className="flex items-center gap-3 rounded-md bg-paper-deep px-4 py-3 text-ink-soft">
       <ImageBroken size={26} weight="bold" aria-hidden="true" />
-      <span className="text-[15px] leading-snug">{r.name} · imagem de exemplo do modo demo (sem arquivo real)</span>
+      <span className="text-[15px] leading-snug">
+        {r.name} ·{" "}
+        {ds.kind === "mock" ? "imagem de exemplo do modo demo (sem arquivo real)" : "não deu para abrir o arquivo. Recarregue a página."}
+      </span>
     </div>
   );
 }
