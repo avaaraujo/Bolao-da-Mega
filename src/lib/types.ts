@@ -1,7 +1,9 @@
 export type EditionStatus = "rascunho" | "aberta" | "fechada" | "apostada";
 
 export type Edition = {
-  year: number;
+  id: string;
+  code: string; // código da sala, ex.: FIRMA-7K3Q
+  name: string;
   quotaPrice: number; // valor da cota em reais
   betPrice: number; // preço da aposta simples (6 números)
   pixKey: string;

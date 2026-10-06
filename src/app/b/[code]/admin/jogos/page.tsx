@@ -27,7 +27,7 @@ export default function Jogos() {
 
   async function copyList() {
     try {
-      await navigator.clipboard.writeText(gamesAsText(games, edition.year));
+      await navigator.clipboard.writeText(gamesAsText(games, edition.name));
       toast.success("Lista copiada. Cole no app da Caixa ou leve à lotérica.");
     } catch {
       toast.error("Não deu para copiar.");

@@ -25,7 +25,7 @@ function readJustStamped(token: string) {
   }
 }
 
-function steps(p: Participant, token: string, editable: boolean, justStamped: boolean): Step[] {
+function steps(p: Participant, base: string, token: string, editable: boolean, justStamped: boolean): Step[] {
   return [
     {
       done: p.payment !== "aguardando" && p.payment !== "recusado",
@@ -36,7 +36,7 @@ function steps(p: Participant, token: string, editable: boolean, justStamped: bo
           : p.payment === "recusado"
             ? "Comprovante recusado. Mande outro."
             : `Enviado em ${dateTime(p.receipt!.uploadedAt)}.`,
-      href: `/p/${token}/pagamento`,
+      href: `${base}/p/${token}/pagamento`,
       action: p.payment === "aguardando" || p.payment === "recusado" ? "Pagar" : "Ver",
     },
     {
@@ -47,12 +47,12 @@ function steps(p: Participant, token: string, editable: boolean, justStamped: bo
           ? `${justStamped ? "Carimbados agora. " : ""}${editable ? "Dá para trocar até fechar as inscrições." : "Números travados."}`
           : "Ainda não marcados.",
       justStamped: justStamped && p.numbers.length === 6,
-      href: `/p/${token}/volante`,
+      href: `${base}/p/${token}/volante`,
       action: p.numbers.length === 6 ? (editable ? "Trocar" : "Ver") : "Marcar",
     },
     {
       done: p.payment === "aprovado",
-      title: "Confirmação do Avá",
+      title: "Confirmação do organizador",
       detail:
         p.payment === "aprovado"
           ? "Pagamento confirmado. Você está dentro."
@@ -64,7 +64,7 @@ function steps(p: Participant, token: string, editable: boolean, justStamped: bo
 }
 
 export default function Bilhete() {
-  const { token, snapshot, participant } = useParticipant();
+  const { token, snapshot, participant, base } = useParticipant();
   // Lido uma vez por chegada; a marca sai do sessionStorage para a próxima visita ficar parada.
   const [justStamped] = useState(() => typeof window !== "undefined" && readJustStamped(token));
   useEffect(() => {
@@ -78,7 +78,7 @@ export default function Bilhete() {
 
   const { edition } = snapshot;
   const editable = edition.status === "aberta";
-  const list = steps(participant, token, editable, justStamped);
+  const list = steps(participant, base, token, editable, justStamped);
   const next = list.find((s) => !s.done && s.href);
 
   async function copyLink() {
@@ -92,7 +92,7 @@ export default function Bilhete() {
 
   const bar =
     edition.status === "apostada" ? (
-      <ButtonLink href="/resultado">
+      <ButtonLink href={`${base}/resultado`}>
         Ver ranking e jogos <ArrowRight size={20} weight="bold" aria-hidden="true" />
       </ButtonLink>
     ) : next ? (
@@ -180,7 +180,7 @@ export default function Bilhete() {
         </>
       }
     >
-      <BackLink href="/">Início</BackLink>
+      <BackLink href={base}>Início</BackLink>
       {justStamped && participant.numbers.length === 6 && (
         <p role="status" className="sr-only">
           Números carimbados no seu bilhete.
@@ -192,7 +192,7 @@ export default function Bilhete() {
 
       {/* O bilhete: um canhoto impresso, com picote. */}
       {/* No desktop o canhoto senta no pé da capa, logo acima da ação. */}
-      <article className="mt-6 rounded-md border-2 border-blue lg:mt-auto">
+      <article data-anchor className="mt-6 rounded-md border-2 border-blue lg:mt-auto">
         <div className="flex items-start justify-between gap-3 px-4 pt-4">
           <div className="min-w-0">
             <p className="display line-clamp-2 text-[11cqi] [overflow-wrap:anywhere] text-ink">{participant.name}</p>
@@ -213,7 +213,7 @@ export default function Bilhete() {
           {[
             ["Cotas", pad2(participant.quotas)],
             ["Valor", brlShort(participant.quotas * edition.quotaPrice)],
-            ["Sorteio", `${dayMonth(edition.drawDate)}/${String(edition.year).slice(2)}`],
+            ["Sorteio", dayMonth(edition.drawDate)],
           ].map(([k, v]) => (
             <div key={k} className="bg-paper px-3 py-2.5">
               <dt className="condensed text-[13px] font-extrabold uppercase text-blue-deep">{k}</dt>
@@ -229,7 +229,7 @@ export default function Bilhete() {
               ))}
             </div>
           ) : (
-            <Link href={`/p/${token}/volante`} className="semi block text-[17px] font-bold text-blue-deep underline underline-offset-4">
+            <Link href={`${base}/p/${token}/volante`} className="semi block text-[17px] font-bold text-blue-deep underline underline-offset-4">
               Marque seus 6 números
             </Link>
           )}

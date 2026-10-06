@@ -67,9 +67,9 @@ export function GameList({ games, highlight = [] }: { games: Game[]; highlight?:
   );
 }
 
-export function gamesAsText(games: Game[], year: number) {
+export function gamesAsText(games: Game[], title: string) {
   const lines = games.map(
     (g) => `Jogo ${g.index + 1} (${g.size} números, ${brlShort(g.cost)}): ${g.numbers.map(pad2).join(" ")}`,
   );
-  return [`Bolão da Mega ${year}`, ...lines].join("\n");
+  return [title, ...lines].join("\n");
 }

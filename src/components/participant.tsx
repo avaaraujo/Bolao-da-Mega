@@ -8,9 +8,9 @@ import { brlShort, firstName, plural } from "@/lib/format";
 
 export function useParticipant() {
   const { token } = useParams<{ token: string }>();
-  const { snapshot, ds } = useBolao();
+  const { snapshot, ds, base } = useBolao();
   const participant = snapshot?.participants.find((p) => p.token === token) ?? null;
-  return { token, snapshot, ds, participant };
+  return { token, snapshot, ds, participant, base };
 }
 
 export const PAYMENT_LABEL: Record<PaymentStatus, string> = {

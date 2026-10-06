@@ -9,7 +9,7 @@ import { approvedTotals, rankNumbers } from "@/lib/rules";
 import { brlShort, dayMonth, plural } from "@/lib/format";
 
 export default function Resultado() {
-  const { snapshot } = useBolao();
+  const { snapshot, base } = useBolao();
   const mine = useMyTokens();
   if (!snapshot) return <Loading />;
 
@@ -18,14 +18,14 @@ export default function Resultado() {
   if (edition.status !== "apostada" || !games) {
     return (
       <Sheet>
-        <BackLink href="/">Início</BackLink>
+        <BackLink href={base}>Início</BackLink>
         <InkTitle size="lg" className="mt-3">
           AINDA EM SEGREDO
         </InkTitle>
         <p className="mt-5 text-[18px] leading-snug text-ink">
-          O ranking dos números e os jogos aparecem aqui assim que o Avá registrar as apostas na Caixa.
+          O ranking dos números e os jogos aparecem aqui assim que o organizador registrar as apostas na Caixa.
         </p>
-        <ButtonLink href="/" variant="outline" className="mt-8 self-start">
+        <ButtonLink href={base} variant="outline" className="mt-8 self-start">
           Voltar ao início
         </ButtonLink>
       </Sheet>
@@ -62,7 +62,7 @@ export default function Resultado() {
         </>
       }
     >
-      <BackLink href="/">Início</BackLink>
+      <BackLink href={base}>Início</BackLink>
       <InkTitle stack className="mt-1">
         {"BOLÃO\nDA MEGA"}
       </InkTitle>

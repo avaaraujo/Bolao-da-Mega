@@ -13,8 +13,12 @@ export function cx(...c: (string | false | null | undefined)[]) {
  * Folha do zine. No celular, uma coluna. No desktop vira página dupla do tamanho da tela:
  * a "capa" (children + ação) fica fixa à esquerda e o trabalho (side) corre à direita.
  * As duas páginas dividem uma linha de cima (títulos) e uma linha de baixo (ação, valor, rodapé):
- * o que deve sentar no pé da página usa `lg:mt-auto`.
+ * o que deve sentar no pé da página usa `lg:mt-auto`; se a ação vem logo depois, marque o bloco
+ * com `data-anchor` para os dois descerem juntos.
+ * Em telas altas a folha para em SPREAD_HEIGHT e fica centrada, para as peças não se espalharem.
  */
+export const SPREAD_HEIGHT = 860;
+
 export function Sheet({
   children,
   side,
@@ -33,14 +37,19 @@ export function Sheet({
   className?: string;
 }) {
   return (
-    <div className={cx("mx-auto flex min-h-dvh w-full max-w-[480px] flex-col", side ? "lg:max-w-[1280px]" : "lg:max-w-[600px]")}>
+    <div
+      className={cx(
+        "mx-auto flex min-h-dvh w-full max-w-[480px] flex-col",
+        side ? "lg:max-w-[1280px] lg:justify-center" : "lg:max-w-[600px]",
+      )}
+    >
       <main
         className={cx(
           "flex flex-1 flex-col px-[var(--gutter)] pt-[max(20px,env(safe-area-inset-top))] lg:px-12",
           bar ? "pb-32" : "pb-10",
           side
             ? cx(
-                "lg:grid lg:py-0 lg:gap-x-[clamp(48px,6vw,96px)]",
+                "lg:flex-none lg:grid lg:py-0 lg:gap-x-[clamp(48px,6vw,96px)]",
                 split === "even" ? "lg:grid-cols-2" : "lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]",
               )
             : "lg:pt-14 lg:pb-16",
@@ -50,14 +59,16 @@ export function Sheet({
         <div
           className={cx(
             "flex flex-col [container-type:inline-size]",
-            side ? "lg:sticky lg:top-0 lg:min-h-dvh lg:self-start lg:py-14" : "flex-1",
+            side
+              ? "lg:sticky lg:top-[max(0px,calc((100dvh-860px)/2))] lg:min-h-[min(100dvh,860px)] lg:self-start lg:py-14"
+              : "flex-1",
           )}
         >
           {children}
           {(!side || barIn === "cover") && bar}
         </div>
         {side && (
-          <div className="flex flex-col [container-type:inline-size] lg:min-h-dvh lg:py-14">
+          <div className="flex flex-col [container-type:inline-size] lg:min-h-[min(100dvh,860px)] lg:py-14">
             {side}
             {barIn === "side" && bar}
           </div>
@@ -102,7 +113,7 @@ export function InkTitle({
       const stacked = stack && window.matchMedia("(min-width: 1024px)").matches;
       const next = Math.min(scale, stacked ? (size === "xl" ? 3.4 : 2.2) : size === "xl" ? 2.2 : 1);
       let px = base * next * 0.985;
-      if (stacked) px = Math.min(px, (window.innerHeight * 0.34) / (children.split("\n").length * 0.84));
+      if (stacked) px = Math.min(px, (Math.min(window.innerHeight, SPREAD_HEIGHT) * 0.34) / (children.split("\n").length * 0.84));
       if (Math.abs(px / base - 1) > 0.005) el.style.fontSize = `${Math.floor(px * 10) / 10}px`;
     };
     fit();
@@ -249,7 +260,7 @@ export function ButtonLink({ variant = "primary", className, ...props }: Compone
 /** Barra fixa no rodapé com a ação principal da tela. */
 export function ActionBar({ children, note }: { children: ReactNode; note?: ReactNode }) {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 lg:static lg:mt-auto lg:pt-10">
+    <div className="fixed inset-x-0 bottom-0 z-40 lg:static lg:mt-auto lg:pt-10 lg:[[data-anchor]~&]:mt-0">
       <div className="mx-auto w-full max-w-[480px] bg-paper/95 px-[var(--gutter)] pt-3 pb-[max(14px,env(safe-area-inset-bottom))] lg:max-w-none lg:bg-transparent lg:p-0">
         {note && <p className="semi mb-2 text-center text-[14px] font-semibold text-ink-soft">{note}</p>}
         <div className="flex flex-col gap-2 [&>*]:w-full [&>*]:min-h-14">{children}</div>
