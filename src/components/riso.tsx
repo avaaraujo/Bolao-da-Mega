@@ -4,6 +4,7 @@ import { ArrowLeft } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useLayoutEffect, useRef, type ComponentProps, type ReactNode } from "react";
 import { pad2 } from "@/lib/format";
+import { gsap, MOTION_OK, useGSAP, usePrintIn } from "./motion";
 
 export function cx(...c: (string | false | null | undefined)[]) {
   return c.filter(Boolean).join(" ");
@@ -36,8 +37,12 @@ export function Sheet({
   split?: "work" | "even";
   className?: string;
 }) {
+  const ref = useRef<HTMLDivElement>(null);
+  usePrintIn(ref);
   return (
     <div
+      ref={ref}
+      data-print-pending=""
       className={cx(
         "mx-auto flex min-h-dvh w-full max-w-[480px] flex-col",
         side ? "lg:max-w-[1280px] lg:justify-center" : "lg:max-w-[600px]",
@@ -260,7 +265,7 @@ export function ButtonLink({ variant = "primary", className, ...props }: Compone
 /** Barra fixa no rodapé com a ação principal da tela. */
 export function ActionBar({ children, note }: { children: ReactNode; note?: ReactNode }) {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 lg:static lg:mt-auto lg:pt-10 lg:[[data-anchor]~&]:mt-0">
+    <div data-bar className="fixed inset-x-0 bottom-0 z-40 lg:static lg:mt-auto lg:pt-10 lg:[[data-anchor]~&]:mt-0">
       <div className="mx-auto w-full max-w-[480px] bg-paper/95 px-[var(--gutter)] pt-3 pb-[max(14px,env(safe-area-inset-bottom))] lg:max-w-none lg:bg-transparent lg:p-0">
         {note && <p className="semi mb-2 text-center text-[14px] font-semibold text-ink-soft">{note}</p>}
         <div className="flex flex-col gap-2 [&>*]:w-full [&>*]:min-h-14">{children}</div>
@@ -293,11 +298,40 @@ export function BackLink({ href, children }: { href: string; children: ReactNode
   );
 }
 
+/** As letras sobem e descem como papel passando nos rolos. */
+export function PrintingWord({ className }: { className?: string }) {
+  const ref = useRef<HTMLParagraphElement>(null);
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia();
+      mm.add(MOTION_OK, () => {
+        gsap.to(ref.current!.querySelectorAll("[data-ch]"), {
+          y: -8,
+          color: "var(--color-pink)",
+          duration: 0.4,
+          ease: "sine.inOut",
+          stagger: { each: 0.07, repeat: -1, yoyo: true },
+        });
+      });
+    },
+    { scope: ref },
+  );
+  return (
+    <p ref={ref} className={className} aria-label="Imprimindo">
+      {"Imprimindo…".split("").map((c, i) => (
+        <span key={i} data-ch aria-hidden="true" className="inline-block">
+          {c}
+        </span>
+      ))}
+    </p>
+  );
+}
+
 export function Loading() {
   return (
     <Sheet>
       <div className="flex flex-1 items-center justify-center">
-        <p className="display text-[10cqi] text-blue motion-safe:animate-pulse">Imprimindo…</p>
+        <PrintingWord className="display text-[10cqi] text-blue" />
       </div>
     </Sheet>
   );

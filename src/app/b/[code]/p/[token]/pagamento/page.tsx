@@ -10,6 +10,14 @@ import { ActionBar, BackLink, Button, cx, InkTitle, Label, Loading, Sheet } from
 import { brl, plural } from "@/lib/format";
 import { ACCEPTED_RECEIPTS, prepareReceipt } from "@/lib/receipt";
 import type { Receipt } from "@/lib/types";
+import type { ReceiptCheck } from "@/lib/data";
+import { CountUp } from "@/components/motion";
+import { ReceiptScanner, VerdictStamp } from "@/components/pix-ai";
+
+// A conferência por IA não pode prender a pessoa: depois disso, segue como envio comum.
+const CHECK_TIMEOUT_MS = 55_000;
+// Respostas rápidas ("este bolão não usa IA") não chegam a mostrar o scanner.
+const SCANNER_DELAY_MS = 450;
 
 export default function Pagamento() {
   const { token, snapshot, ds, participant, base } = useParticipant();
@@ -18,9 +26,67 @@ export default function Pagamento() {
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [busy, setBusy] = useState(false);
   const [dragging, setDragging] = useState(false);
+  const [scanning, setScanning] = useState<Receipt | null>(null);
+  const [verdict, setVerdict] = useState<{ receipt: Receipt; result: Extract<ReceiptCheck, { status: "done" }> } | null>(null);
 
   if (!snapshot) return <Loading />;
   if (!participant) return <NotFound />;
+
+  const nextHref = participant.numbers.length ? `${base}/p/${token}` : `${base}/p/${token}/volante`;
+  const nextLabel = participant.numbers.length ? "Ver meu bilhete" : "Marcar meus números";
+
+  if (scanning || verdict) {
+    const shown = verdict?.receipt ?? scanning!;
+    const v = verdict?.result.check.verdict;
+    return (
+      <Sheet
+        barIn="side"
+        split="even"
+        side={
+          <section data-own-motion data-sheet-shake className="mt-6 lg:mt-0">
+            <ReceiptScanner key={verdict ? "lido" : "lendo"} receipt={shown} reading={!verdict}>
+              {v && (
+                <span className="absolute inset-0 flex items-center justify-center [container-type:inline-size]">
+                  <VerdictStamp verdict={v} />
+                </span>
+              )}
+            </ReceiptScanner>
+          </section>
+        }
+        bar={
+          verdict ? (
+            <ActionBar>
+              {v === "recusado" ? (
+                <Button
+                  onClick={() => {
+                    setVerdict(null);
+                    setReceipt(null);
+                    input.current?.click();
+                  }}
+                >
+                  <UploadSimple size={20} weight="bold" aria-hidden="true" /> Mandar outro comprovante
+                </Button>
+              ) : (
+                <Button onClick={() => router.push(nextHref)}>
+                  {nextLabel} <ArrowRight size={20} weight="bold" aria-hidden="true" />
+                </Button>
+              )}
+            </ActionBar>
+          ) : undefined
+        }
+      >
+        <InkTitle size="lg" stack className="mt-3">
+          {verdict ? (v === "aprovado" ? "TUDO\nCERTO" : v === "recusado" ? "NÃO\nBATEU" : "QUASE\nLÁ") : "LENDO\nO PIX"}
+        </InkTitle>
+        <p className="mt-6 text-[18px] leading-snug text-ink lg:mt-auto" role={verdict ? "status" : undefined}>
+          {verdict
+            ? verdict.result.check.summary
+            : "Estamos conferindo conta, valor e horário do seu comprovante. Leva alguns segundos."}
+        </p>
+        <input ref={input} type="file" accept={ACCEPTED_RECEIPTS} onChange={onFile} className="sr-only" tabIndex={-1} />
+      </Sheet>
+    );
+  }
 
   const { edition } = snapshot;
   const total = participant.quotas * edition.quotaPrice;
@@ -59,12 +125,30 @@ export default function Pagamento() {
     setBusy(true);
     try {
       await ds.attachReceipt(token, receipt);
-      toast.success("Comprovante enviado. O organizador vai conferir.");
-      router.push(participant!.numbers.length ? `${base}/p/${token}` : `${base}/p/${token}/volante`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Não deu para enviar. Tente de novo.");
       setBusy(false);
+      return;
     }
+
+    if (ds.checkReceipt) {
+      const sent = receipt;
+      const show = setTimeout(() => setScanning(sent), SCANNER_DELAY_MS);
+      const result = await Promise.race([
+        ds.checkReceipt(token),
+        new Promise<ReceiptCheck>((r) => setTimeout(() => r({ status: "error", message: "timeout" }), CHECK_TIMEOUT_MS)),
+      ]);
+      clearTimeout(show);
+      setScanning(null);
+      if (result.status === "done") {
+        setBusy(false);
+        setVerdict({ receipt: sent, result });
+        return;
+      }
+    }
+
+    toast.success("Comprovante enviado. O organizador vai conferir.");
+    router.push(nextHref);
   }
 
   return (
@@ -185,7 +269,7 @@ export default function Pagamento() {
         <p className="semi text-[17px] font-semibold text-ink-soft">
           {plural(participant.quotas, "cota", "cotas")} × {brl(edition.quotaPrice)}
         </p>
-        <p className="display mt-1 text-[24cqi] leading-[0.8] text-ink">{brl(total)}</p>
+        <CountUp value={total} format={brl} className="display mt-1 block text-[24cqi] leading-[0.8] text-ink" />
         <p className="mt-3 text-[15px] leading-snug text-ink-soft">
           Mande exatamente esse valor, para o pagamento bater com as suas cotas.
         </p>

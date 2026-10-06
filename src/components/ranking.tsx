@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { RankEntry } from "@/lib/rules";
 import { dateTime, pad2 } from "@/lib/format";
 import { Button } from "./riso";
+import { usePasses } from "./motion";
 
 const STEP = 15;
 
@@ -11,12 +12,14 @@ const STEP = 15;
 export function RankingList({ ranking }: { ranking: RankEntry[] }) {
   const [shown, setShown] = useState(STEP);
   const max = ranking[0]?.votes ?? 1;
+  const ref = useRef<HTMLOListElement>(null);
+  usePasses(ref, "[data-pass]");
   if (ranking.length === 0) {
     return <p className="mt-3 text-[16px] text-ink-soft">Ninguém com Pix aprovado marcou números ainda.</p>;
   }
   return (
     <>
-      <ol className="mt-2">
+      <ol ref={ref} className="mt-2">
         {ranking.slice(0, shown).map((r, i) => {
           const tie = (ranking[i - 1]?.votes === r.votes) || (ranking[i + 1]?.votes === r.votes);
           return (
@@ -25,7 +28,7 @@ export function RankingList({ ranking }: { ranking: RankEntry[] }) {
               <span className="semi w-10 shrink-0 text-[24px] font-bold tabular-nums text-blue-deep">{pad2(r.number)}</span>
               <span className="flex min-w-0 flex-1 flex-col gap-1">
                 <span className="relative h-3.5 w-full">
-                  <span className="ink absolute inset-y-0 left-0 rounded-[1px] bg-pink" style={{ width: `${(r.votes / max) * 100}%` }} />
+                  <span data-pass className="ink absolute inset-y-0 left-0 rounded-[1px] bg-pink" style={{ width: `${(r.votes / max) * 100}%` }} />
                 </span>
                 {tie && <span className="text-[12px] leading-none text-ink-soft">1º voto {dateTime(r.firstVoteAt)}</span>}
               </span>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Check, Copy, LinkSimple } from "@phosphor-icons/react";
 import { toast } from "sonner";
@@ -9,6 +9,7 @@ import { PAYMENT_LABEL, useParticipant } from "@/components/participant";
 import { ActionBar, BackLink, ButtonLink, cx, InkTitle, Label, Loading, NumberChip, Sheet } from "@/components/riso";
 import { brlShort, dateTime, dayMonth, pad2, plural } from "@/lib/format";
 import type { Participant } from "@/lib/types";
+import { gsap, MOTION_OK, useGSAP } from "@/components/motion";
 
 type Step = { done: boolean; title: string; detail: string; href?: string; action?: string; justStamped?: boolean };
 
@@ -72,6 +73,24 @@ export default function Bilhete() {
       sessionStorage.removeItem(`bolao:carimbo:${token}`);
     } catch {}
   }, [token]);
+
+  // O canhoto sai da impressora: desenrola de cima para baixo, com o picote tremendo no fim.
+  const ticket = useRef<HTMLElement>(null);
+  const ready = !!snapshot && !!participant;
+  useGSAP(
+    () => {
+      if (!ready || !ticket.current) return;
+      const mm = gsap.matchMedia();
+      mm.add(MOTION_OK, () => {
+        gsap
+          .timeline({ delay: 0.15 })
+          .from(ticket.current, { clipPath: "inset(0 0 100% 0)", y: -14, duration: 0.7, ease: "power4.out", clearProps: "clipPath,transform" })
+          .from(ticket.current!.querySelectorAll("dd"), { y: 10, opacity: 0, stagger: 0.07, duration: 0.4, ease: "back.out(2)", clearProps: "transform,opacity" }, "-=0.35")
+          .from("[data-status]", { scale: 2.2, rotate: -12, opacity: 0, duration: 0.5, ease: "back.out(2.6)", clearProps: "transform,opacity" }, "-=0.2");
+      });
+    },
+    { dependencies: [ready], scope: ticket },
+  );
 
   if (!snapshot) return <Loading />;
   if (!participant) return <NotFound />;
@@ -192,14 +211,15 @@ export default function Bilhete() {
 
       {/* O bilhete: um canhoto impresso, com picote. */}
       {/* No desktop o canhoto senta no pé da capa, logo acima da ação. */}
-      <article data-anchor className="mt-6 rounded-md border-2 border-blue lg:mt-auto">
+      <article ref={ticket} data-anchor data-own-motion className="mt-6 rounded-md border-2 border-blue lg:mt-auto">
         <div className="flex items-start justify-between gap-3 px-4 pt-4">
           <div className="min-w-0">
             <p className="display line-clamp-2 text-[11cqi] [overflow-wrap:anywhere] text-ink">{participant.name}</p>
           </div>
           <span
+            data-status
             className={cx(
-              "condensed shrink-0 rounded-[3px] px-2 py-1 text-[14px] font-extrabold uppercase",
+              "condensed inline-block shrink-0 rounded-[3px] px-2 py-1 text-[14px] font-extrabold uppercase",
               participant.payment === "aprovado" && "bg-yellow text-ink",
               participant.payment === "em_analise" && "border-2 border-blue text-blue-deep",
               participant.payment === "aguardando" && "border-2 border-ink/40 text-ink-soft",

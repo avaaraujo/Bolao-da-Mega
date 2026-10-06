@@ -16,4 +16,4 @@ export function getDataSource(code: string): DataSource {
   return getPlatform().source(code);
 }
 
-export type { AdminUser, DataSource, NewBolao, Platform, Snapshot } from "./source";
+export type { AdminUser, DataSource, NewBolao, Platform, ReceiptCheck, Snapshot } from "./source";

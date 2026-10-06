@@ -7,6 +7,7 @@ import { ActionBar, ButtonLink, Label, Sheet, InkTitle, Strip } from "@/componen
 import { approvedTotals, gameCost, planGames } from "@/lib/rules";
 import { summarizeSizes } from "@/lib/labels";
 import { CostBar } from "@/components/jogos";
+import { CountUp } from "@/components/motion";
 import { brlShort, dayMonth, firstName, plural } from "@/lib/format";
 import { RULES, STEPS } from "@/lib/agent/content";
 
@@ -48,7 +49,7 @@ export function Home() {
             <ol className="mt-3 flex flex-col lg:mt-4">
               {STEPS.map((s, i) => (
                 <li key={s.title} className="flex items-baseline gap-4 border-t border-blue/40 py-3 first:border-t-0 lg:gap-7 lg:py-6">
-                  <span className="display ink w-7 shrink-0 text-[34px] text-pink lg:w-14 lg:text-[76px]">{i + 1}</span>
+                  <span data-pop className="display ink inline-block w-7 shrink-0 text-[34px] text-pink lg:w-14 lg:text-[76px]">{i + 1}</span>
                   <span className="flex flex-col">
                     <span className="condensed text-[20px] font-extrabold uppercase leading-tight text-ink lg:text-[30px]">{s.title}</span>
                     <span className="text-[16px] leading-snug text-ink-soft lg:text-[19px]">{s.text}</span>
@@ -110,7 +111,7 @@ export function Home() {
 
       {/* No desktop o pote desce para o pé da capa, junto da ação. */}
       <section data-anchor className="mt-8 lg:mt-auto lg:pt-12">
-        <Label aside={totals ? brlShort(totals.total) : undefined}>O pote até agora</Label>
+        <Label aside={totals ? <CountUp value={totals.total} format={brlShort} /> : undefined}>O pote até agora</Label>
         {totals && plan ? (
           <>
             <p className="semi mt-1 mb-3 text-[16px] font-semibold text-ink-soft">

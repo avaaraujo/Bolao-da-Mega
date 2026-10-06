@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Button, Label, Strip, Dot } from "@/components/riso";
 import { approvedTotals, gameCost, planGames } from "@/lib/rules";
 import { CostBar } from "@/components/jogos";
+import { CountUp } from "@/components/motion";
 import { brlShort, dayMonth, plural } from "@/lib/format";
 import { STATUS_LABEL, summarizeSizes } from "@/lib/labels";
 
@@ -68,6 +69,7 @@ export default function Painel() {
       {review.length > 0 && (
         <Link
           href={`${base}/admin/pagamentos`}
+          data-wobble
           className="mt-5 flex items-center justify-between gap-3 rounded-md bg-yellow px-4 py-3.5 text-ink active:translate-y-px"
         >
           <span className="semi text-[18px] font-bold">
@@ -104,9 +106,9 @@ export default function Painel() {
       <section className="mt-7">
         <Label>Caixa</Label>
         <div className="mt-2">
-          <Row label="Confirmado" value={brlShort(totals.total)} strong />
-          <Row label="Cotas confirmadas" value={totals.quotas} />
-          <Row label="Pessoas confirmadas" value={totals.people} />
+          <Row label="Confirmado" value={<CountUp value={totals.total} format={brlShort} />} strong />
+          <Row label="Cotas confirmadas" value={<CountUp value={totals.quotas} />} />
+          <Row label="Pessoas confirmadas" value={<CountUp value={totals.people} />} />
           <Row label="Em análise" value={`${brlShort(review.reduce((s, p) => s + p.quotas, 0) * edition.quotaPrice)} · ${review.length}`} />
           <Row label="Sem comprovante" value={waiting.length} />
           <Row label="Recusados" value={rejected.length} />

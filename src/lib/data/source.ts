@@ -1,4 +1,10 @@
+import type { AiCheck } from "../pix-check";
 import type { Edition, Game, Participant, PaymentStatus, Receipt } from "../types";
+
+export type ReceiptCheck =
+  | { status: "done"; check: AiCheck; payment: PaymentStatus }
+  | { status: "skipped"; reason: string }
+  | { status: "error"; message: string };
 
 export type Snapshot = {
   edition: Edition;
@@ -25,6 +31,11 @@ export interface DataSource {
   setPayment(id: string, status: PaymentStatus, reason?: string): Promise<Participant>;
   updateEdition(patch: Partial<Edition>): Promise<Edition>;
   saveGames(games: Game[] | null): Promise<void>;
+
+  /** Conferência do comprovante pela IA, logo depois do envio. Só com Supabase e organizador habilitado. */
+  checkReceipt?(token: string): Promise<ReceiptCheck>;
+  /** O organizador pede (de novo) a conferência pela IA. */
+  recheckReceipt?(participantId: string, force?: boolean): Promise<ReceiptCheck>;
 
   /** Só no modo demo: volta aos dados de exemplo. */
   reset?(): Promise<void>;
@@ -53,6 +64,8 @@ export interface Platform {
   signOut(): Promise<void>;
   listMyBolaos(): Promise<Edition[]>;
   createBolao(input: NewBolao): Promise<Edition>;
+  /** O organizador logado tem a conferência de Pix por IA liberada. */
+  aiReviewEnabled?(): Promise<boolean>;
   /** Fonte de dados de uma sala. Instâncias são reaproveitadas por código. */
   source(code: string): DataSource;
 }

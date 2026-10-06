@@ -37,6 +37,20 @@ Qualquer pessoa pode criar uma conta de organizador e gerar o seu bolão; um org
 
 Participantes não têm conta: entram pelo código e usam o token do link pessoal, sempre por funções do banco (`join_bolao`, `set_numbers`, `attach_receipt`, `get_public_snapshot`). Dados reais ficam só no banco, nunca no repositório (`.env*` é ignorado, exceto `.env.example`).
 
+## Conferência de Pix por IA
+
+Quando o participante manda o comprovante, `POST /api/comprovantes/conferir` baixa o arquivo do bucket e pede ao Claude (`claude-opus-5-5`) só a **leitura** dos campos: valor, data e hora, destinatário, chave, pagador, ID da transação e sinais de edição. Quem decide são as regras em `src/lib/pix-check.ts`, que são testadas:
+
+- **aprova sozinho** quando conta, valor exato e horário (entre 2 h antes da inscrição e o envio) batem;
+- **recusa sozinho** só o que é objetivo: não é Pix, foi para outra pessoa, ou valor a menos;
+- **manda para você** qualquer caso estranho: print antigo, valor a mais, mesmo ID de transação de outro participante, sinais de edição, campo ilegível.
+
+Só funciona para organizadores listados em `public.ai_reviewers` (hoje, a conta do Avá); nos outros bolões o envio segue como antes. Precisa de `ANTHROPIC_API_KEY` e `SUPABASE_SERVICE_ROLE_KEY` no servidor (Vercel). Cada comprovante é lido uma vez (`claim_ai_check`), com no máximo 8 leituras por participante. Na tela de Pagamentos, comprovantes ainda sem leitura são lidos sozinhos ao abrir a tela, e dá para pedir "Ler de novo".
+
+## Movimento
+
+Animações em GSAP (`src/components/motion.tsx`), na linguagem da risografia: títulos entram em duas passadas de tinta fora de registro, valores contam como contador, carimbos respingam, barras de custo e ranking imprimem em passadas, o mapa de calor cai do centro e as dezenas dos jogos quicam. Tudo respeita `prefers-reduced-motion` e não deixa `transform` preso nos elementos.
+
 ## Onde está cada coisa
 
 - `src/lib/rules.ts`: custo dos jogos, divisão gulosa, ranking com desempate, montagem dos jogos.
