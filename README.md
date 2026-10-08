@@ -1,8 +1,33 @@
 # Bolão da Mega
 
-Plataforma mobile-first para o bolão da Mega da Virada da firma: cotas de R$ 60, Pix, comprovante, 6 números por pessoa, ranking dos números e montagem automática dos jogos (maior jogo primeiro, ranking em sequência sem repetir).
+A web app for running an office lottery pool for Brazil's New Year's Eve *Mega da Virada* draw, designed as a risograph zine. **[bolaodamega.avaaraujo.com](https://bolaodamega.avaaraujo.com)**
 
-Endereço: https://bolaodamega.avaaraujo.com (o deploy antigo de sala única era bolaodamega1.vercel.app)
+![Bolão da Mega landing page: oversized pink and blue risograph type, a field for the pool code, and four steps](.github/screenshot.png)
+
+<p>
+  <img src=".impeccable/review/mobile-volante.jpg" width="260" alt="Picking 6 numbers on the lottery ticket">
+  <img src=".impeccable/review/mobile-jogos.jpg" width="260" alt="Admin view: how the money turns into games">
+</p>
+
+## Why I built it
+
+Every year I organize the office pool. Until now that meant collecting Pix transfers, chasing receipts over chat and keeping a spreadsheet. This app replaces all of it. People join from a link on their phone, pay, upload the receipt and pick their 6 numbers. I approve the payments in one place, and the app builds the bets.
+
+## Design and product decisions
+
+- **The group votes on the numbers.** The most picked numbers fill the games in order, biggest game first, until the money runs out. Rules live in `src/lib/rules.ts` and have tests.
+- **Mobile first, for everyone.** Participants and the organizer both use it on their phones, so every screen starts at 390px.
+- **A risograph zine, not a fintech app.** Misregistered two-ink type, stamps and a halftone heatmap give it the loose feel of an office tradition. GSAP motion respects `prefers-reduced-motion`.
+- **AI reads, the rules decide.** Claude only reads the Pix receipt (amount, time, recipient). Tested rules approve the clear cases, reject the objective failures and send anything odd to a human.
+- **Many pools.** Anyone can create a pool with its own code, isolated by row-level security.
+
+**Stack:** Next.js, Supabase (Postgres, Auth, Storage, RLS), Claude API, GSAP, Vitest, Vercel.
+
+**Built with AI.** I write the code with Claude Code as a pair. The design and product decisions are mine.
+
+---
+
+## Documentação técnica (em português)
 
 ## Rodar
 
