@@ -5,6 +5,7 @@ import { Copy } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import { AdminSheet } from "@/components/admin";
 import { useBolao } from "@/components/bolao-provider";
+import { ExportImageButton } from "@/components/export-button";
 import { CostBar, GameList, gamesAsText } from "@/components/jogos";
 import { Button, Label, Strip, Dot } from "@/components/riso";
 import { approvedTotals, buildGames, planGames, rankNumbers } from "@/lib/rules";
@@ -73,13 +74,16 @@ export default function Jogos() {
         <section className="mt-7 lg:mt-0">
           <div className="flex items-baseline justify-between gap-3">
             <Label>Números de cada jogo</Label>
-            <button
-              type="button"
-              onClick={copyList}
-              className="condensed flex min-h-11 shrink-0 items-center gap-1.5 text-[16px] font-extrabold uppercase text-blue-deep hover:underline"
-            >
-              <Copy size={18} weight="bold" aria-hidden="true" /> Copiar
-            </button>
+            <div className="flex gap-4">
+              <ExportImageButton edition={edition} games={games} participants={participants} />
+              <button
+                type="button"
+                onClick={copyList}
+                className="condensed flex min-h-11 shrink-0 items-center gap-1.5 text-[16px] font-extrabold uppercase text-blue-deep hover:underline"
+              >
+                <Copy size={18} weight="bold" aria-hidden="true" /> Copiar
+              </button>
+            </div>
           </div>
           <p className="mt-1 mb-3 text-[15px] leading-snug text-ink-soft">
             Os números saem do ranking em sequência, sem repetir; quando o ranking acaba, volta ao começo.

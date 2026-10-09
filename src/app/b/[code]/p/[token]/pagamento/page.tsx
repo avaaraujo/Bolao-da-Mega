@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, Copy, FilePdf, UploadSimple } from "@phosphor-ic
 import { toast } from "sonner";
 import { NotFound } from "@/components/not-found";
 import { useParticipant } from "@/components/participant";
+import { PixQr } from "@/components/pix-qr";
 import { ActionBar, BackLink, Button, cx, InkTitle, Label, Loading, Sheet } from "@/components/riso";
 import { brl, plural } from "@/lib/format";
 import { ACCEPTED_RECEIPTS, prepareReceipt } from "@/lib/receipt";
@@ -178,6 +179,7 @@ export default function Pagamento() {
             >
               Copiar o valor ({brl(total)})
             </button>
+            <PixQr pixKey={edition.pixKey} holder={edition.pixHolder} amount={total} />
           </section>
 
           <section className="mt-6">
