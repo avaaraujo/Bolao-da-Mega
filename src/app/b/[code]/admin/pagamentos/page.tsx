@@ -9,6 +9,7 @@ import { gsap, reduced } from "@/components/motion";
 import { AiReport, AiTag } from "@/components/pix-ai";
 import { Button, collapse, cx, useReveal } from "@/components/riso";
 import { brlShort, dateTime, pad2, plural } from "@/lib/format";
+import { isLate, reminderText, reminderUrl } from "@/lib/cobranca";
 import type { Participant, PaymentStatus } from "@/lib/types";
 
 const FILTERS: { id: PaymentStatus; label: string }[] = [
@@ -83,10 +84,18 @@ function useAiQueue(participants: Participant[]): Ai {
   return useMemo(() => ({ enabled, running, run }), [enabled, running, run]);
 }
 
+/** O painel aponta para cá com ?filtro=recusado, ?filtro=aguardando etc. */
+function initialFilter(): PaymentStatus {
+  if (typeof window === "undefined") return "em_analise";
+  const wanted = new URLSearchParams(location.search).get("filtro");
+  return FILTERS.find((f) => f.id === wanted)?.id ?? "em_analise";
+}
+
 export default function Pagamentos() {
   const { snapshot } = useBolao();
-  const [filter, setFilter] = useState<PaymentStatus>("em_analise");
+  const [filter, setFilter] = useState<PaymentStatus>(initialFilter);
   const [open, setOpen] = useState<string | null>(null);
+  const [picked, setPicked] = useState<ReadonlySet<string>>(new Set());
   const ai = useAiQueue(snapshot?.participants ?? []);
   const pill = useRef<HTMLSpanElement>(null);
   const filterIndex = FILTERS.findIndex((f) => f.id === filter);
@@ -163,6 +172,7 @@ export default function Pagamentos() {
               onClick={() => {
                 setFilter(f.id);
                 setOpen(null);
+                setPicked(new Set());
               }}
               className={cx(
                 // O primeiro filho é o marcador amarelo; a primeira aba é o segundo.
@@ -183,11 +193,32 @@ export default function Pagamentos() {
         </p>
       ) : (
         <>
+          {filter === "em_analise" && (
+            <BulkApprove
+              list={list.filter((p) => p.receipt)}
+              picked={picked}
+              setPicked={setPicked}
+              quotaPrice={edition.quotaPrice}
+            />
+          )}
           <ul className="mt-3">
             {list.map((p) => (
               <PaymentRow
                 key={p.id}
                 p={p}
+                pick={
+                  filter === "em_analise" && p.receipt
+                    ? {
+                        checked: picked.has(p.id),
+                        toggle: () =>
+                          setPicked((cur) => {
+                            const next = new Set(cur);
+                            if (!next.delete(p.id)) next.add(p.id);
+                            return next;
+                          }),
+                      }
+                    : undefined
+                }
                 quotaPrice={edition.quotaPrice}
                 open={open === p.id}
                 selected={selected?.id === p.id}
@@ -233,6 +264,7 @@ function KeyboardQueue({ list, selectedId, onSelect }: { list: Participant[]; se
 
 function PaymentRow({
   p,
+  pick,
   quotaPrice,
   open,
   selected,
@@ -240,6 +272,7 @@ function PaymentRow({
   onToggle,
 }: {
   p: Participant;
+  pick?: { checked: boolean; toggle: () => void };
   quotaPrice: number;
   open: boolean;
   selected: boolean;
@@ -248,13 +281,23 @@ function PaymentRow({
 }) {
   return (
     <li id={`pix-${p.id}`} className="border-t border-blue/40 first:border-t-0">
+      <div className="flex items-center">
+      {pick && (
+        <input
+          type="checkbox"
+          checked={pick.checked}
+          onChange={pick.toggle}
+          aria-label={`Selecionar ${p.name}`}
+          className="mr-1 size-6 shrink-0 cursor-pointer accent-blue-deep lg:ml-3"
+        />
+      )}
       <button
         type="button"
         onClick={onToggle}
         aria-expanded={open}
         aria-current={selected ? "true" : undefined}
         className={cx(
-          "flex min-h-16 w-full items-center gap-3 py-2.5 text-left lg:rounded-md lg:px-3 lg:hover:bg-paper-deep",
+          "flex min-h-16 min-w-0 flex-1 items-center gap-3 py-2.5 text-left lg:rounded-md lg:px-3 lg:hover:bg-paper-deep",
           selected && "lg:bg-yellow lg:hover:bg-yellow",
         )}
       >
@@ -263,6 +306,7 @@ function PaymentRow({
           <span className="text-[14px] text-ink-soft">
             {p.receipt ? `Comprovante ${dateTime(p.receipt.uploadedAt)}` : `Inscrição ${dateTime(p.createdAt)}`}
             <AiTag check={p.aiCheck} />
+            {isLate(p) && " · atrasado"}
           </span>
         </span>
         <span className="semi flex flex-col items-end">
@@ -276,6 +320,7 @@ function PaymentRow({
           className={cx("shrink-0 text-blue-deep transition-transform duration-300 ease-out-expo lg:hidden", open && "rotate-180")}
         />
       </button>
+      </div>
 
       {open && <RowDetail p={p} quotaPrice={quotaPrice} onDecided={onDecided} />}
     </li>
@@ -410,7 +455,12 @@ function PaymentDetail({ p, quotaPrice, onDecided }: { p: Participant; quotaPric
         </div>
       )}
 
-      {!p.receipt && <p className="text-[15px] text-ink-soft">Ainda não mandou comprovante.</p>}
+      {!p.receipt && (
+        <>
+          <p className="text-[15px] text-ink-soft">Ainda não mandou comprovante.</p>
+          <Reminder p={p} />
+        </>
+      )}
     </div>
   );
 }
@@ -446,6 +496,123 @@ function Receipt({ p }: { p: Participant }) {
         {r.name} ·{" "}
         {ds.kind === "mock" ? "imagem de exemplo do modo demo (sem arquivo real)" : "não deu para abrir o arquivo. Recarregue a página."}
       </span>
+    </div>
+  );
+}
+
+/** Cobrança de quem ainda não pagou: abre o WhatsApp com a mensagem pronta, ou copia o texto. */
+function Reminder({ p }: { p: Participant }) {
+  const { snapshot, base } = useBolao();
+  if (!snapshot) return null;
+  const text = reminderText(p, snapshot.edition.quotaPrice, snapshot.edition.name, `${location.origin}${base}/p/${p.token}/pagamento`);
+  const url = reminderUrl(p, text);
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success("Mensagem copiada. Cole no WhatsApp ou onde preferir.");
+    } catch {
+      toast.error("Não deu para copiar.");
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      {url && (
+        <Button className="min-h-12" onClick={() => window.open(url, "_blank", "noopener")}>
+          Cobrar no WhatsApp
+        </Button>
+      )}
+      <Button variant="outline" className="min-h-12" onClick={copy}>
+        Copiar mensagem de cobrança
+      </Button>
+      {!url && <p className="text-[14px] text-ink-soft">O contato dessa pessoa não é um telefone, então não dá para abrir o WhatsApp.</p>}
+    </div>
+  );
+}
+
+/** Aprovação em lote: marque vários comprovantes e aprove de uma vez, com desfazer. */
+function BulkApprove({
+  list,
+  picked,
+  setPicked,
+  quotaPrice,
+}: {
+  list: Participant[];
+  picked: ReadonlySet<string>;
+  setPicked: (s: ReadonlySet<string>) => void;
+  quotaPrice: number;
+}) {
+  const { ds } = useBolao();
+  const [confirming, setConfirming] = useState(false);
+  const [busy, setBusy] = useState(false);
+  if (list.length < 2) return null;
+
+  const chosen = list.filter((p) => picked.has(p.id));
+  const total = chosen.reduce((sum, p) => sum + p.quotas * quotaPrice, 0);
+  const all = chosen.length === list.length;
+
+  async function approve() {
+    setBusy(true);
+    const done: string[] = [];
+    try {
+      for (const p of chosen) {
+        await ds.setPayment(p.id, "aprovado");
+        done.push(p.id);
+      }
+      toast.success(`${plural(done.length, "Pix aprovado", "Pix aprovados")}.`, {
+        duration: 8000,
+        action: {
+          label: "Desfazer",
+          onClick: () => {
+            Promise.all(done.map((id) => ds.setPayment(id, "em_analise"))).catch(() =>
+              toast.error("Não deu para desfazer tudo. Confira a aba Aprovados."),
+            );
+          },
+        },
+      });
+    } catch (err) {
+      toast.error(`${err instanceof Error ? err.message : "Não deu para salvar."} ${done.length} de ${chosen.length} foram aprovados.`);
+    } finally {
+      setBusy(false);
+      setConfirming(false);
+      setPicked(new Set());
+    }
+  }
+
+  return (
+    <div className="mt-4 flex flex-col gap-2 rounded-md border-2 border-blue px-3 py-2.5">
+      <div className="flex items-center justify-between gap-3">
+        <label className="semi flex min-h-11 cursor-pointer items-center gap-2.5 text-[15px] font-bold text-ink">
+          <input
+            type="checkbox"
+            checked={all}
+            onChange={() => setPicked(all ? new Set() : new Set(list.map((p) => p.id)))}
+            className="size-6 accent-blue-deep"
+          />
+          Selecionar todos
+        </label>
+        {!confirming && (
+          <Button variant="outline" className="min-h-11 !w-auto px-4 text-[15px]" disabled={chosen.length === 0} onClick={() => setConfirming(true)}>
+            {chosen.length === 0 ? "Aprovar vários" : `Aprovar ${chosen.length} · ${brlShort(total)}`}
+          </Button>
+        )}
+      </div>
+      {confirming && (
+        <>
+          <p className="text-[15px] leading-snug text-ink">
+            Aprovar {plural(chosen.length, "Pix", "Pix")} ({brlShort(total)}) sem abrir os comprovantes um por um?
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            <Button variant="outline" className="min-h-12" onClick={() => setConfirming(false)} disabled={busy}>
+              Voltar
+            </Button>
+            <Button className="min-h-12" onClick={approve} disabled={busy}>
+              {busy ? "Aprovando…" : "Sim, aprovar"}
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

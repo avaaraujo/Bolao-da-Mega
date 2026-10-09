@@ -11,6 +11,7 @@ import { CostBar } from "@/components/jogos";
 import { CountUp } from "@/components/motion";
 import { brlShort, dayMonth, plural } from "@/lib/format";
 import { STATUS_LABEL, summarizeSizes } from "@/lib/labels";
+import { isLate } from "@/lib/cobranca";
 
 export default function Painel() {
   const { snapshot, base } = useBolao();
@@ -21,6 +22,12 @@ export default function Painel() {
   const review = count("em_analise");
   const waiting = count("aguardando");
   const rejected = count("recusado");
+  const late = waiting.filter((p) => isLate(p));
+  const todo = [
+    { n: review.length, label: plural(review.length, "comprovante para conferir", "comprovantes para conferir"), filtro: "em_analise", hot: true },
+    { n: late.length, label: plural(late.length, "pessoa sem Pix há mais de 2 dias", "pessoas sem Pix há mais de 2 dias"), filtro: "aguardando", hot: false },
+    { n: rejected.length, label: plural(rejected.length, "Pix recusado esperando outro", "Pix recusados esperando outro"), filtro: "recusado", hot: false },
+  ].filter((t) => t.n > 0);
   const noNumbers = participants.filter((p) => p.payment === "aprovado" && p.numbers.length !== 6);
   const plan = planGames(totals.total, edition.betPrice);
 
@@ -66,17 +73,28 @@ export default function Painel() {
         {STATUS_LABEL[edition.status]} <Dot /> prazo {dayMonth(edition.deadline)} <Dot /> sorteio {dayMonth(edition.drawDate)}
       </Strip>
 
-      {review.length > 0 && (
-        <Link
-          href={`${base}/admin/pagamentos`}
-          data-wobble
-          className="mt-5 flex items-center justify-between gap-3 rounded-md bg-yellow px-4 py-3.5 text-ink active:translate-y-px"
-        >
-          <span className="semi text-[18px] font-bold">
-            {plural(review.length, "comprovante para conferir", "comprovantes para conferir")}
-          </span>
-          <ArrowRight size={22} weight="bold" aria-hidden="true" />
-        </Link>
+      {todo.length > 0 ? (
+        <section className="mt-5">
+          <Label>Para resolver</Label>
+          <ul className="mt-2 flex flex-col gap-2">
+            {todo.map((t) => (
+              <li key={t.filtro}>
+                <Link
+                  href={`${base}/admin/pagamentos?filtro=${t.filtro}`}
+                  data-wobble={t.hot ? "" : undefined}
+                  className={`flex min-h-14 items-center justify-between gap-3 rounded-md px-4 py-3 text-ink active:translate-y-px ${
+                    t.hot ? "bg-yellow" : "border-2 border-blue hover:bg-paper-deep"
+                  }`}
+                >
+                  <span className="semi text-[18px] font-bold">{t.label}</span>
+                  <ArrowRight size={22} weight="bold" aria-hidden="true" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : (
+        <p className="semi mt-5 text-[17px] font-semibold text-ink-soft">Nada pendente. Tudo em dia.</p>
       )}
 
       <section className="mt-7">

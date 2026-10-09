@@ -20,6 +20,13 @@ export const MODEL = process.env.PIX_REVIEW_MODEL?.trim() || "claude-haiku-4-5";
 const EFFORT = /haiku/.test(MODEL) ? undefined : ({ effort: "low" } as const);
 const BUCKET = "comprovantes";
 
+/** Teto de leituras por IA em um bolão inteiro. Trocável pela variável PIX_REVIEW_MAX_PER_BOLAO na Vercel. */
+export const MAX_CHECKS_PER_BOLAO = Number(process.env.PIX_REVIEW_MAX_PER_BOLAO) > 0 ? Number(process.env.PIX_REVIEW_MAX_PER_BOLAO) : 300;
+
+export function checksSpent(rows: { ai_checks_count: number | null }[]) {
+  return rows.reduce((sum, r) => sum + Number(r.ai_checks_count ?? 0), 0);
+}
+
 export type ReviewResult =
   | { status: "done"; check: AiCheck; payment: string }
   | { status: "skipped"; reason: "not_configured" | "not_enabled" | "busy" | "not_pending" | "no_receipt" };
@@ -174,6 +181,13 @@ async function review(target: Target): Promise<ReviewResult> {
   const path = row.receipt_path as string | null;
   if (!path) return { status: "skipped", reason: "no_receipt" };
   if (row.payment !== "em_analise" && !force) return { status: "skipped", reason: "not_pending" };
+
+  // Teto de leituras por bolão (cada uma é uma chamada paga). Cada participante já tem o seu, no claim_ai_check.
+  const { data: spent, error: spentErr } = await db.from("participants").select("ai_checks_count").eq("bolao_id", bolao.id);
+  if (spentErr) throw new ReviewError(spentErr.message, 500);
+  if (checksSpent(spent ?? []) >= MAX_CHECKS_PER_BOLAO) {
+    throw new ReviewError("Este bolão chegou ao limite de conferências por IA. Confira os Pix à mão.", 429);
+  }
 
   const { data: claimed, error: claimErr } = await db.rpc("claim_ai_check", { p_id: row.id, p_path: path, p_force: force });
   if (claimErr) throw new ReviewError(claimErr.message, 500);
