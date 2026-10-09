@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Copy, FilePdf, UploadSimple } from "@phosphor-icons/react";
+import { ArrowLeft, ArrowRight, Copy, FilePdf, UploadSimple } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import { NotFound } from "@/components/not-found";
 import { useParticipant } from "@/components/participant";
@@ -61,10 +61,9 @@ export default function Pagamento() {
                   onClick={() => {
                     setVerdict(null);
                     setReceipt(null);
-                    input.current?.click();
                   }}
                 >
-                  <UploadSimple size={20} weight="bold" aria-hidden="true" /> Mandar outro comprovante
+                  <ArrowLeft size={20} weight="bold" aria-hidden="true" /> Voltar
                 </Button>
               ) : (
                 <Button onClick={() => router.push(nextHref)}>
@@ -254,6 +253,11 @@ export default function Pagamento() {
           ) : (
             <Button onClick={() => input.current?.click()}>
               <UploadSimple size={20} weight="bold" aria-hidden="true" /> Anexar comprovante
+            </Button>
+          )}
+          {!alreadySent && (
+            <Button variant="outline" onClick={() => router.push(nextHref)} disabled={busy}>
+              Pagar depois
             </Button>
           )}
         </ActionBar>

@@ -35,8 +35,8 @@ export function Landing() {
             <Label>Como funciona</Label>
             <ol className="mt-3 flex flex-col lg:mt-4">
               {STEPS.map((s, i) => (
-                <li key={s.title} className="flex items-baseline gap-4 border-t border-blue/40 py-3 first:border-t-0 lg:gap-7 lg:py-6">
-                  <span data-pop className="display ink inline-block w-7 shrink-0 text-[34px] text-pink lg:w-14 lg:text-[76px]">{i + 1}</span>
+                <li key={s.title} className="flex items-center gap-4 border-t border-blue/40 py-3 first:border-t-0 lg:gap-7 lg:py-6">
+                  <span data-pop className="display ink inline-block w-7 shrink-0 text-[34px] leading-none text-pink lg:w-14 lg:text-[76px]">{i + 1}</span>
                   <span className="flex flex-col">
                     <span className="condensed text-[20px] font-extrabold uppercase leading-tight text-ink lg:text-[30px]">{s.title}</span>
                     <span className="text-[16px] leading-snug text-ink-soft lg:text-[19px]">{s.text}</span>
@@ -46,7 +46,7 @@ export function Landing() {
             </ol>
           </section>
 
-          <details className="mt-4 border-t border-blue/40 pt-3">
+          <details className="border-t border-blue/40 pt-3">
             <summary className="condensed cursor-pointer text-[19px] font-extrabold uppercase text-blue-deep">Regras do bolão</summary>
             <ul className="mt-2 flex flex-col gap-2 text-[15px] leading-snug text-ink-soft">
               {RULES.map((rule) => (
